@@ -42,7 +42,7 @@ scmi_pd_set_perf_state(struct generic_pm_domain *genpd, unsigned int state)
 	return ret;
 }
 
-#ifdef CONFIG_ARCH_CIX
+#if IS_REACHABLE(CONFIG_ARM_SCMI_PROTOCOL) && defined(CONFIG_ARCH_CIX)
 int scmi_device_set_freq(struct device *dev, unsigned long freq)
 {
 	struct generic_pm_domain *genpd = pd_to_genpd(dev->pm_domain);

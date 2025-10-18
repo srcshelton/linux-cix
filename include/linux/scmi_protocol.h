@@ -873,7 +873,7 @@ int scmi_device_opp_table_parse(struct device *dev);
 unsigned long scmi_device_get_freq(struct device *dev);
 int scmi_device_set_freq(struct device *dev, unsigned long freq);
 #endif
-#else
+#else // !IS_REACHABLE(CONFIG_ARM_SCMI_PROTOCOL)
 static inline int
 scmi_driver_register(struct scmi_driver *driver, struct module *owner,
 		     const char *mod_name)
@@ -883,17 +883,20 @@ scmi_driver_register(struct scmi_driver *driver, struct module *owner,
 
 static inline void scmi_driver_unregister(struct scmi_driver *driver) {}
 
-static int scmi_device_opp_table_parse(struct device *dev)
+static inline int
+scmi_device_opp_table_parse(struct device *dev)
 {
 	return -EINVAL;
 }
 
-unsigned long scmi_device_get_freq(struct device *dev)
+static inline unsigned long
+scmi_device_get_freq(struct device *dev)
 {
 	return -EINVAL;
 }
 
-int scmi_device_set_freq(struct device *dev, unsigned long freq)
+static inline int
+scmi_device_set_freq(struct device *dev, unsigned long freq)
 {
 	return -EINVAL;
 }
