@@ -31,14 +31,14 @@ config PLAT_BBOX_TEST
 	  rdr exception test.
 
 config PLAT_BBOX_BCH_M
-	int "bch Galois field order, should be in the range 5-15"
+	int "bch Galois field order, should be in the range 5-15" if PLAT_BBOX
 	default 9
 	range 5 15
 	help
 	  Galois field order, should be in the range 5-15
 
 config PLAT_BBOX_BCH_T
-	int "bch maximum error correction capability, in bits"
+	int "bch maximum error correction capability, in bits" if PLAT_BBOX
 	default 4
 	help
 	  bch maximum error correction capability, in bits

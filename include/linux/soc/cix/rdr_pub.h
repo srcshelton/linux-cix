@@ -453,10 +453,12 @@ static inline int rdr_unregister_module_ops(u64 coreid)
 static inline void rdr_system_error(u32 modid, u32 arg1, u32 arg2)
 {
 }
+#if 0
 static inline unsigned int bbox_check_edition(void)
 {
 	return EDITION_USER;
 }
+#endif
 static inline int rdr_wait_partition(const char *path, int timeouts, int mode)
 {
 	return 0;
