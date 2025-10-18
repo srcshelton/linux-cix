@@ -56,6 +56,7 @@ int check_himntn(int feature)
 out:
 	return ret;
 }
+EXPORT_SYMBOL_GPL(check_himntn);
 
 int get_himntn_value(int feature)
 {
