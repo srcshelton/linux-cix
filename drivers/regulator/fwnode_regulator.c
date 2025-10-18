@@ -93,7 +93,7 @@ static int fwnode_get_regulation_constraints(struct device *dev,
 
 	n_phandles = fwnode_count_reference_with_args(np, "regulator-coupled-with",
 						NULL);
-	if (IS_ERR(n_phandles))
+	if (IS_ERR(ERR_PTR(n_phandles)))
 		n_phandles = 0;
 
 	n_phandles = max(n_phandles, 0);
@@ -712,6 +712,10 @@ struct regulator_dev *fwnode_parse_coupled_regulator(struct regulator_dev *rdev,
 	return c_rdev;
 }
 
+// Copy & paste from drivers/regulator/of_regulator.c - there used in
+// of_regulator_bulk_get_all()
+//
+#if 0
 /*
  * Check if name is a supply name according to the '*-supply' pattern
  * return 0 if false
@@ -735,3 +739,4 @@ static int is_supply_name(const char *name)
 	}
 	return 0;
 }
+#endif

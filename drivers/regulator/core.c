@@ -5518,12 +5518,13 @@ static int regulator_init_coupling(struct regulator_dev *rdev)
 	if (n_phandles == 0)
 		return 0;
 
-	if (has_acpi_companion(&rdev->dev))
+	if (has_acpi_companion(&rdev->dev)) {
 		if (!fwnode_check_coupling_data(rdev))
 			return -EPERM;
-	else
+	} else {
 		if (!of_check_coupling_data(rdev))
 			return -EPERM;
+	}
 
 	mutex_lock(&regulator_list_mutex);
 	rdev->coupling_desc.coupler = regulator_find_coupler(rdev);
