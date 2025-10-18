@@ -750,10 +750,14 @@ static int cix_sfh_rproc_addr_init(struct cix_sfh_rproc *rproc_priv)
 {
 	struct device *dev = rproc_priv->dev;
 	struct device_node *np = dev->of_node;
+#ifdef CONFIG_PLAT_BBOX
 	struct cix_mem_region *mem_reg = rproc_priv->mem_region;
+#endif
 	struct cix_sfh_mem *p_mem;
 	int err, nph, i;
+#ifdef CONFIG_HIBERNATION
 	int r_num = 0;
+#endif
 
 	nph = of_count_phandle_with_args(np, "memory-region", NULL);
 	if (nph <= 0)

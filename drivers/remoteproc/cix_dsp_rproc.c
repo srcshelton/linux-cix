@@ -1115,6 +1115,7 @@ static int cix_dsp_rproc_runtime_resume(struct device *dev)
 	return 0;
 }
 
+#ifdef CONFIG_PM_SLEEP
 static int cix_dsp_rproc_suspend(struct device *dev)
 {
 	struct rproc *rproc = dev_get_drvdata(dev);
@@ -1200,6 +1201,7 @@ err:
 
 	return ret;
 }
+#endif
 
 static const struct dev_pm_ops cix_dsp_rproc_pm_ops = {
 	SET_SYSTEM_SLEEP_PM_OPS(cix_dsp_rproc_suspend, cix_dsp_rproc_resume)
