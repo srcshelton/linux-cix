@@ -8,6 +8,7 @@
 #define __DST_REBOOT_REASON_H__
 
 #include <linux/types.h>
+#include <soc/cix/ap/platform/sky1/mntn_public_interface.h>
 
 void set_reboot_reason(unsigned int reboot_reason, unsigned int sub_reason);
 unsigned int get_reboot_reason(bool is_last);
