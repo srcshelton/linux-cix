@@ -130,9 +130,11 @@ static inline void syscalls_hook(u32 syscall_num, u32 dir)
 static inline void hung_task_hook(void *tsk, u32 timeout)
 {
 }
+#if 0
 static inline u32 get_current_last_irq(unsigned int cpu)
 {
 }
+#endif
 static inline void tasklet_hook(u64 address, u32 dir)
 {
 }
