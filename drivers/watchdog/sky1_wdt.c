@@ -398,7 +398,7 @@ static int sky1_wdt_resume(struct device *dev)
 	return 0;
 }
 
-static SIMPLE_DEV_PM_OPS(sky1_wdt_pm_ops, sky1_wdt_suspend,
+static DEFINE_SIMPLE_DEV_PM_OPS(sky1_wdt_pm_ops, sky1_wdt_suspend,
 		sky1_wdt_resume);
 
 static const struct of_device_id sky1_wdt_device_of_match[] = {

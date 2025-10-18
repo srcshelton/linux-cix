@@ -1051,6 +1051,7 @@ config SKY1_WATCHDOG
 	tristate "SKY1 Watchdog"
 	depends on ARCH_CIX
 	depends on OF
+	select CIX_DST
 	select WATCHDOG_CORE
 	help
 	  This is the driver for the hardware watchdog
