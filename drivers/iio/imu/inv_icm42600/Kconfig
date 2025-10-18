@@ -7,7 +7,7 @@ config INV_ICM42600
 
 config INV_ICM42600_I2C
 	tristate "InvenSense ICM-426xx I2C driver"
-	depends on I2C
+	depends on I2C && BROKEN
 	select INV_ICM42600
 	select REGMAP_I2C
 	help

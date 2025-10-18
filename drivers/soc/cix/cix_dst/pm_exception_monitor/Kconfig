@@ -2,7 +2,7 @@
 
 config PM_EXCEPTION_PROTOCOL
 	bool "Enable support for PM exception protocol"
-	depends on ARM_SCMI_PROTOCOL
+	depends on ARM_SCMI_PROTOCOL && BROKEN
 
 
 config PM_EXCEPTION_DRIVER
@@ -13,6 +13,7 @@ config PM_EXCEPTION_DRIVER
 config PM_EXCP_DSM_DRIVER
 	default n
 	bool "Enable support for PM dsm driver"
+	depends on BROKEN
 
 config CIX_EC_EXCEPTION_DRIVER
 	default n

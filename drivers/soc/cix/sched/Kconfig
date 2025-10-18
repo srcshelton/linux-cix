@@ -13,6 +13,7 @@ config CIX_SCHED
 
 config CIX_CORE_CTL
 	tristate "CIX Core Control with CPU Isolation"
+	depends on BROKEN
 	default n
 	help
 	  This config is for the core control policy with CPU isolation.
