@@ -87,7 +87,7 @@ static int cache_dsu_excep_resume(struct device *dev)
 	return 0;
 }
 
-static SIMPLE_DEV_PM_OPS(cache_dsu_excep_pm_ops, cache_dsu_excep_suspend,
+static DEFINE_SIMPLE_DEV_PM_OPS(cache_dsu_excep_pm_ops, cache_dsu_excep_suspend,
 			 cache_dsu_excep_resume);
 
 static const struct of_device_id cache_excp_dsu_of_ids[] = {

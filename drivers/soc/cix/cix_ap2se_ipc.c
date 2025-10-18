@@ -252,6 +252,7 @@ static int cix_ap2se_ipc_remove(struct platform_device *pdev)
 	return 0;
 }
 
+#ifdef CONFIG_PM_SLEEP
 static int cix_ap2se_ipc_suspend(struct device *dev)
 {
 	struct cix_ap2se_ipc_dev *mdev = dev_get_drvdata(dev);
@@ -282,6 +283,7 @@ static int cix_ap2se_ipc_resume(struct device *dev)
 	mdev->init_status = 1;
 	return 0;
 }
+#endif
 
 static const struct of_device_id cix_ap2se_ipc_of_match[] = {
 	{ .compatible = "cix,cix_se2ap_mbox" },
@@ -290,7 +292,9 @@ static const struct of_device_id cix_ap2se_ipc_of_match[] = {
 MODULE_DEVICE_TABLE(of, cix_ap2se_ipc_of_match);
 
 static const struct dev_pm_ops cix_ap2se_ipc_pm_ops = {
+#ifdef CONFIG_PM_SLEEP
 	SET_SYSTEM_SLEEP_PM_OPS(cix_ap2se_ipc_suspend, cix_ap2se_ipc_resume)
+#endif
 };
 
 static struct platform_driver cix_ap2se_ipc_driver = {

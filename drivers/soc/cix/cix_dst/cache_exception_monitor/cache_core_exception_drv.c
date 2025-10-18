@@ -250,8 +250,9 @@ static int cache_excep_resume(struct device *dev)
 	return ret;
 }
 
-static SIMPLE_DEV_PM_OPS(cache_excep_pm_ops, cache_excep_suspend,
+static DEFINE_SIMPLE_DEV_PM_OPS(cache_excep_pm_ops, cache_excep_suspend,
 			 cache_excep_resume);
+
 
 static const struct of_device_id cache_excp_of_ids[] = {
 	{ .compatible = "cix,sky1_exception_core_cache" },
