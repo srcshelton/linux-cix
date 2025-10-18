@@ -372,6 +372,7 @@ processor_set_cur_state(struct thermal_cooling_device *cdev,
 static int processor_get_requested_power(struct thermal_cooling_device *cdev,
 					 u32 *power)
 {
+#if defined(CONFIG_CPU_FREQ) && defined(CONFIG_CIX_THERMAL)
 	struct acpi_device *device = cdev->devdata;
 	struct cpufreq_policy *policy;
 	struct acpi_processor *pr;
@@ -395,6 +396,9 @@ static int processor_get_requested_power(struct thermal_cooling_device *cdev,
 	cpufreq_cpu_put(policy);
 
 	return 0;
+#else
+	return -EINVAL;
+#endif
 }
 
 /**
@@ -413,6 +417,7 @@ static int processor_get_requested_power(struct thermal_cooling_device *cdev,
 static int processor_state2power(struct thermal_cooling_device *cdev,
 				 unsigned long state, u32 *power)
 {
+#if defined(CONFIG_CPU_FREQ) && defined(CONFIG_CIX_THERMAL)
 	unsigned int freq, opp_power, num_cpus, idx;
 	struct cpufreq_policy *policy = NULL;
 	struct cppc_cpudata *cpu_data;
@@ -466,6 +471,9 @@ static int processor_state2power(struct thermal_cooling_device *cdev,
 EXIT:
 	cpufreq_cpu_put(policy);
 	return ret;
+#else
+	return -EINVAL;
+#endif
 }
 
 /**
@@ -486,6 +494,7 @@ EXIT:
 static int processor_power2state(struct thermal_cooling_device *cdev,
 				 u32 power, unsigned long *state)
 {
+#if defined(CONFIG_CPU_FREQ) && defined(CONFIG_CIX_THERMAL)
 	struct cpufreq_policy *policy;
 	struct cppc_cpudata *cpu_data;
 	struct em_perf_domain *em;
@@ -543,6 +552,9 @@ static int processor_power2state(struct thermal_cooling_device *cdev,
 
 	*state = cpu_data->opp_level_num - i - 1;
 	return 0;
+#else
+	return -EINVAL;
+#endif
 }
 
 
