@@ -116,7 +116,10 @@ static const struct acpi_device_id rfkill_acpi_ids[] = {
 	{"CIXH7000", 0 },
 	{ },
 };
-MODULE_DEVICE_TABLE(acpi, macb_acpi_ids);
+/*
+ * Accidental copy/paste error from drivers/net/ethernet/cadence/macb_main.c?
+ */
+//MODULE_DEVICE_TABLE(acpi, macb_acpi_ids);
 
 static struct platform_driver rfkill_gpio_driver = {
 	.probe = rfkill_wlan_probe,
