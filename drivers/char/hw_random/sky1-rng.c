@@ -84,7 +84,7 @@ static inline void trng_read(struct sky1_rng *hrng, uint8_t *buf, size_t len)
 		left_len -= read_len;
 	}
 
-	printk("trng_read %d:0x%x\n", len, buf[0]);
+	printk("trng_read %lu:0x%x\n", len, buf[0]);
 }
 
 static int sky1_rng_init(struct hwrng *rng)
