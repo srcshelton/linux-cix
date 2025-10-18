@@ -190,7 +190,7 @@ config MD_FAULTY
 	  The "faulty" module allows for a block device that occasionally returns
 	  read or write errors.  It is useful for testing.
 
-	  In unsure, say N.
+	  If unsure, say N.
 
 
 config MD_CLUSTER
