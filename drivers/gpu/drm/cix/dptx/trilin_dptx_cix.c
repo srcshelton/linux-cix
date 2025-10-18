@@ -329,7 +329,7 @@ static int trilin_dptx_cix_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#ifdef CONFIG_PM
+#if defined(CONFIG_PM) && defined(CONFIG_PM_SLEEP)
 static int trilin_dptx_pm_suspend(struct device *dev)
 {
 	/* TODO */
@@ -361,22 +361,24 @@ static const struct dev_pm_ops trilin_dptx_pm_ops = {
 	//.prepare = trilin_dptx_pm_prepare,
 	//.complete = trilin_dptx_pm_complete,
 };
-#endif
 
 static void trilin_dptx_cix_shutdown(struct platform_device *pdev)
 {
 	trilin_dptx_pm_suspend(&pdev->dev);
 }
+#endif
 
 static struct platform_driver trilin_dp_driver = {
 	.probe  = trilin_dptx_cix_probe,
 	.remove = trilin_dptx_cix_remove,
+#if defined(CONFIG_PM) && defined(CONFIG_PM_SLEEP)
 	.shutdown = trilin_dptx_cix_shutdown,
+#endif
 	.driver = {
 		.name = "trilin-dptx-cix",
 		.of_match_table = trilin_dptx_dt_ids,
 		.acpi_match_table = ACPI_PTR(trilin_dptx_acpi_ids),
-#ifdef CONFIG_PM
+#if defined(CONFIG_PM) && defined(CONFIG_PM_SLEEP)
 		.pm = &trilin_dptx_pm_ops,
 #endif
 	},

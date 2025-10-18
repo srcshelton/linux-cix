@@ -22,7 +22,7 @@ static int linlondp_plane_init_data_flow(struct drm_plane_state *st,
 	struct drm_framebuffer *fb = st->fb;
 	const struct linlondp_format_caps *caps = to_kfb(fb)->format_caps;
 	struct linlondp_pipeline *pipe = kplane->layer->base.pipeline;
-	struct linlondp_dev *mdev = st->plane->dev->dev_private;
+	//struct linlondp_dev *mdev = st->plane->dev->dev_private;
 	struct drm_crtc_state *crtc_st;
 	struct drm_display_mode *mode;
 	struct drm_display_mode *adjusted_mode;

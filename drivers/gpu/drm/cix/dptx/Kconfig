@@ -2,6 +2,7 @@
 config DRM_TRILIN_DPSUB
 	tristate "Trilinear Technologies DisplayPort Controller Driver"
 	depends on COMMON_CLK && DRM && OF
+	select BACKLIGHT_CLASS_DEVICE
 	select DRM_KMS_HELPER
 	select DRM_DISPLAY_HELPER
 	select DRM_DISPLAY_DP_HELPER
