@@ -8,7 +8,7 @@ config PM_EXCEPTION_PROTOCOL
 config PM_EXCEPTION_DRIVER
 	default n
 	bool "Enable support for PM exception driver"
-	select PM_EXCEPTION_PROTOCOL
+	depends on PM_EXCEPTION_PROTOCOL
 
 config PM_EXCP_DSM_DRIVER
 	default n
@@ -18,3 +18,4 @@ config PM_EXCP_DSM_DRIVER
 config CIX_EC_EXCEPTION_DRIVER
 	default n
 	bool "Enable support for EC exception driver"
+	depends on CIX_EC
