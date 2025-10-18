@@ -814,7 +814,7 @@ static int dsu_pctrl_resume(struct device *dev)
 	return ret;
 }
 
-static SIMPLE_DEV_PM_OPS(dsu_pctrl_pm, dsu_pctrl_suspend, dsu_pctrl_resume);
+static DEFINE_SIMPLE_DEV_PM_OPS(dsu_pctrl_pm, dsu_pctrl_suspend, dsu_pctrl_resume);
 
 static int dsu_pctrl_devfreq_probe(struct platform_device *pdev)
 {
