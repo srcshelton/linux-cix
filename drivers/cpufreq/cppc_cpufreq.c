@@ -868,7 +868,11 @@ static int cppc_cpufreq_cpu_exit(struct cpufreq_policy *policy)
 	cppc_cpufreq_put_cpu_data(policy);
 
 #ifdef CONFIG_ARM64
+#if IS_BUILTIN(CONFIG_ACPI_PROCESSOR)
 	acpi_processor_thermal_exit(pr, device);
+#else
+	pr_debug("skipping thermal_exit without built-in ACPI_PROCESSOR\n");
+#endif
 #endif
 	return 0;
 }
