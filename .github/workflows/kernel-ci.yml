@@ -1,0 +1,517 @@
+---
+name: Linux 6.6.89-cix+ CI build pipeline
+
+on:
+  push:
+    branches:
+      - linux-6.6.89-cix*
+  workflow_dispatch:
+    inputs:
+      # There can only be... 10.
+      runner_arch:
+        description: "Runner architecture"
+        required: true
+        default: "aarch64"
+        type: choice
+        options:
+          - "aarch64"
+          - "x86"
+      compilers:
+        description: "Array of compilers to run"
+        required: true
+        default: '["gcc-14", "clang-20"]'
+      configs:
+        description: "Array of kernel source 'make' targets"
+        required: true
+        default: '["defconfig", "overlay", "allyesconfig", "allnoconfig", "allmodconfig"]'
+      overlay_path:
+        description: "Relative path to vendor overlay defconfig additions to merge"
+        required: false
+        default: "arch/arm64/configs/cix.config"
+      additional_make_vars:
+        description: 'Optional additional make variables'
+        required: false
+        default: "KCFLAGS=-O3 -fno-tree-vectorize"
+      enforce_werror_section_flags:
+        description: "Enforce CONFIG_WERROR=n, CONFIG_SECTION_MISMATCH_WARN_ONLY=n and CONFIG_DEBUG_SECTION_MISMATCH=y?"
+        required: false
+        default: "true"
+        type: boolean
+      enable_verbose:
+        description: 'Build with V=1 and run checkpatch.pl?'
+        required: false
+        default: "false"
+        type: boolean
+      enable_artefacts:
+        description: 'Upload build artefacts?'
+        required: false
+        default: "true"
+        type: boolean
+      cache_enabled:
+        description: "Enable caching of build directory?"
+        required: false
+        default: "true"
+        type: boolean
+      #clean:
+      #  description: "Clean build caches before running?"
+      #  required: false
+      #  default: "false"
+      #  type: boolean
+      clean_cache:
+        description: "Force clean build (skips cache restore/save)?"
+        required: false
+        default: "false"
+        type: boolean
+      #concurrency_limit:
+      #  description: 'Max parallel jobs (integer)'
+      #  required: false
+      #  default: 5
+      #  type: number
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  BUILD_ROOT: build-artefacts
+
+jobs:
+  kernel-build:
+    runs-on: ${{ inputs.arch == 'x86' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+
+    strategy:
+      matrix:
+        # matrix values are static; job steps will skip compilers not requested via inputs
+        compiler: ${{ fromJSON(inputs.compilers || '["gcc-14","clang-20"]') }}
+        target: ${{ fromJSON(inputs.configs || '["defconfig", "overlay", "allyesconfig", "allnoconfig", "allmodconfig"]') }}
+      fail-fast: false
+      max-parallel: 10
+    concurrency:
+      group: kernel-build-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+
+      - name: Initialise pipeline input variables ...
+        id: init
+        run: |
+          set -eux
+          set -o pipefail
+
+          echo "Raw inputs:"
+          echo '${{ toJSON(inputs) }}'
+
+          declare -a inputs=()
+          inputs+=(
+            "INPUT_RUNNER_ARCH='${{ inputs.runner_arch || 'aarch64' }}'"
+            "INPUT_COMPILERS='${{ inputs.compilers || '["gcc-14","clang-20"]' }}'"
+            # inputs.configs
+            "INPUT_OVERLAY='${{ inputs.overlay_path || 'arch/arm64/configs/cix.config' }}'"
+            "INPUT_VARS='${{ inputs.additional_make_vars || 'KCFLAGS=-O3 -fno-tree-vectorize' }}'"
+            "INPUT_ENFORCE='${{ inputs.enforce_werror_section_flags || 'true' }}'"
+            "INPUT_VERBOSE='${{ inputs.enable_verbose || 'false' }}'"
+            # inputs.artefacts
+            # inputs.cache_enabled
+
+            # Removed due to 10-input limit:
+            ## inputs.clean
+            "INPUT_CLEAN='${{ inputs.clean_cache || 'false' }}'"
+            # Removed due to 10-input limit:
+            ##"INPUT_JOBS='${{ inputs.concurrency_limit }}'"
+
+            # Forced default value due to 10-input limit:
+            "INPUT_ARCH='arm64'"
+            "INPUT_JOBS=$(( $(nproc) + 1 ))"
+
+            # Expanded by matrix task splitter:
+            "MATRIX_TARGET='${{ matrix.target }}'"
+            "MATRIX_COMPILER='${{ matrix.compiler }}'"
+          )
+          printf '%s\n' "${inputs[@]}" >/tmp/ci_inputs
+
+          echo >&2 "INFO:  Inputs:"
+          cat /tmp/ci_inputs
+
+      - name: Determine whether this job should run (based on inputs) ...
+        id: decide
+        run: |
+          set -eux
+          set -o pipefail
+          . /tmp/ci_inputs
+
+          echo "Checking for matrix compiler '${MATRIX_COMPILER,,}' in selected compilers '${INPUT_COMPILERS,,}' ..."
+          if grep -qw "${MATRIX_COMPILER,,}" <<<"${INPUT_COMPILERS,,}"; then
+            echo "run=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "run=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Skip particular compiler (not specified in inputs)
+        if: steps.decide.outputs.run == 'false'
+        run: |
+          echo "This matrix entry (${{ matrix.compiler }}) was not included in workflow inputs (see previous task); skipping."
+
+      - name: Setup build environment ...
+        if: steps.decide.outputs.run == 'true'
+        run: |
+          set -eux
+          set -o pipefail
+          . /tmp/ci_inputs
+
+          # Canonical build id and build dir
+          BUILD_ID="${INPUT_ARCH}-${MATRIX_COMPILER//-/_}-${MATRIX_TARGET}"
+          BUILD_DIR="${BUILD_ROOT}/${BUILD_ID}"
+          mkdir -p "${BUILD_DIR}"
+          echo "BUILD_ID='${BUILD_ID}'" >> "${GITHUB_ENV}"
+          echo "BUILD_DIR='${BUILD_DIR}'" >> "${GITHUB_ENV}"
+
+          case "${MATRIX_COMPILER:-}" in
+            gcc-14)
+              COMPILER_FLAVOUR='gcc'
+              COMPILER_VERSION='14'
+              ;;
+            gcc-15)
+              COMPILER_FLAVOUR='gcc'
+              COMPILER_VERSION='15'
+              ;;
+            gcc-latest)
+              COMPILER_FLAVOUR='gcc'
+              COMPILER_VERSION='latest'
+              ;;
+            clang-20)
+              COMPILER_FLAVOUR='clang'
+              COMPILER_VERSION='20'
+              ;;
+            clang-latest)
+              COMPILER_FLAVOUR='clang'
+              COMPILER_VERSION='latest'
+              ;;
+            *)
+              echo "Unknown compiler '${MATRIX_COMPILER:-}'"
+              exit 1
+              ;;
+          esac
+          echo "COMPILER_FLAVOUR='${COMPILER_FLAVOUR}'" >> "${GITHUB_ENV}"
+          echo "COMPILER_VERSION='${COMPILER_VERSION}'" >> "${GITHUB_ENV}"
+
+          echo >&2 "INFO:  Build will use COMPILER_FLAVOUR='${COMPILER_FLAVOUR:-}', COMPILER_VERSION='${COMPILER_VERSION:-}', ARCH='${INPUT_ARCH:-}'"
+
+      - name: Install prerequisite packages ...
+        if: steps.decide.outputs.run == 'true'
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: build-essential
+          version: build-essential
+
+      - name: Install other build dependencies & compiler suite ...
+        if: steps.decide.outputs.run == 'true'
+        run: |
+          set -eux
+          set -o pipefail
+          . /tmp/ci_inputs
+
+          export PATH=/home/runner/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+          #echo "APT sources:" ; grep -H '^.*$' /etc/apt/sources.list /etc/apt/sources.list.d/* || :
+          for f in 'azure-cli' 'ondrej-ubuntu-php-noble' 'ubuntu'; do
+            if [[ -e "/etc/apt/sources.list.d/${f}.sources" ]]; then
+              sudo rm -v "/etc/apt/sources.list.d/${f}.sources" || :
+            fi
+          done
+          sudo apt-get update
+
+          # If we're using an x86 runner, we need to install cross-compiler toolchains...
+          if [ -n "${INPUT_RUNNER_ARCH:-}" ] && [ "${INPUT_RUNNER_ARCH}" != "$(uname -m)" ]; then
+            echo >&2 "WARN:  Runner architecture '$(uname -m)' differs from target architecture '${INPUT_RUNNER_ARCH}'"
+            sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+            export CROSS_COMPILE="aarch64-linux-gnu-"
+            echo "CROSS_COMPILE='${CROSS_COMPILE}'" >> "${GITHUB_ENV}"
+          fi
+
+          # Install compiler versions requested
+          case "${COMPILER_FLAVOUR:-}" in
+            gcc)
+              case "${COMPILER_VERSION:-}" in
+                14|15)
+                  # Try apt install of ${COMPILER_FLAVOUR}-${COMPILER_VERSION};
+                  # fallback to default '${COMPILER_FLAVOUR}' if not available
+                  if apt-cache show "${COMPILER_FLAVOUR}-${COMPILER_VERSION}" >/dev/null 2>&1; then
+                    sudo apt-get install -y "${COMPILER_FLAVOUR}-${COMPILER_VERSION}" "g++-${COMPILER_VERSION}"
+                    sudo update-alternatives --install '/usr/bin/gcc' 'gcc' "/usr/bin/gcc-${COMPILER_VERSION}" 100 \
+                                             --slave '/usr/bin/g++' 'g++' "/usr/bin/g++-${COMPILER_VERSION}" || :
+                  else
+                    echo >&2 "WARN:  ${COMPILER_FLAVOUR}-${COMPILER_VERSION} not found in apt;" \
+                      "falling back to system '${COMPILER_FLAVOUR}'" \
+                      "(check runner images or add a toolchain installation step)."
+                  fi
+                  ;;
+                *)
+                  echo >&2 "WARN:  Striping unknown compiler version '${COMPILER_VERSION}'"
+                  sudo apt-get install -y "${COMPILER_FLAVOUR}" g++
+                  ;;
+              esac
+              export CC="${COMPILER_FLAVOUR}"
+              echo "CC='${CC}'" >> "${GITHUB_ENV}"
+              ;;
+            clang)
+              case "${COMPILER_VERSION}" in
+                20)
+                  # Try apt install of ${COMPILER_FLAVOUR}-${COMPILER_VERSION};
+                  # fallback to default '${COMPILER_FLAVOUR}' if not available
+                  if apt-cache show "${COMPILER_FLAVOUR}-${COMPILER_VERSION}" >/dev/null 2>&1; then
+                    sudo apt-get install -y "${COMPILER_FLAVOUR}-${COMPILER_VERSION}" "lld-${COMPILER_VERSION}"
+
+                    # Ensure that ${COMPILER_FLAVOUR} points to ${COMPILER_FLAVOUR}-${COMPILER_VERSION}
+                    sudo update-alternatives --install \
+                        "/usr/bin/${COMPILER_FLAVOUR}" \
+                        "${COMPILER_FLAVOUR}" \
+                        "/usr/bin/${COMPILER_FLAVOUR}-${COMPILER_VERSION}" 200 ||
+                      true
+                    sudo update-alternatives --install \
+                        "/usr/bin/${COMPILER_FLAVOUR}++" \
+                        "${COMPILER_FLAVOUR}++" \
+                        "/usr/bin/${COMPILER_FLAVOUR}++-${COMPILER_VERSION}" 200 ||
+                      true
+                  else
+                    echo >&2 "WARN:  ${COMPILER_FLAVOUR}-${COMPILER_VERSION} not found in apt;" \
+                      "falling back to generic '${COMPILER_FLAVOUR}'" \
+                      "(check runner images or add a toolchain installation step)."
+                    sudo apt-get install -y "${COMPILER_FLAVOUR}" "${COMPILER_FLAVOUR}++" lld
+                  fi
+                  ;;
+
+                *)
+                  echo >&2 "WARN:  Striping unknown compiler version '${COMPILER_VERSION}'"
+                  sudo apt-get install -y "${COMPILER_FLAVOUR}" "${COMPILER_FLAVOUR}++" lld
+                  ;;
+              esac
+              export CC='clang'
+              echo "CC='${CC}'" >> "${GITHUB_ENV}"
+
+              # Are these still needed?
+              export CXX='clang++' LD='ld.lld' LLVM=1 LLVM_IAS=1
+              echo "CXX='clang++'" >> "${GITHUB_ENV}"
+              echo "LD='ld.lld'" >> "${GITHUB_ENV}"
+              echo "LLVM='1'" >> "${GITHUB_ENV}"
+              echo "LLVM_IAS='1'" >> "${GITHUB_ENV}"
+              ;;
+          esac
+
+          # ccache support
+          export PATH="/usr/lib64/ccache:/usr/lib/ccache:${PATH}"
+          echo "PATH='${PATH}'" >> "${GITHUB_ENV}"
+
+          echo >&2 "INFO:  GITHUB_ENV:"
+          cat "${GITHUB_ENV}"
+
+      - name: Checkout git source from repo ...
+        if: steps.decide.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          show-progress: false
+
+      - name: (Optional) Restore build cache ...
+        if: steps.decide.outputs.run == 'true' && ( inputs.cache_enabled || 'true' ) == 'true' && ( inputs.clean_cache || 'false' ) != 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.BUILD_DIR }}
+            .ccache
+          key: kernel-build-${{ matrix.compiler }}-${{ runner.os }}-build-${{ matrix.target }}-${{ github.sha }}-config-${{ hashFiles(inputs.overlay_path || 'arch/arm64/configs/cix.config') }}
+          restore-keys: |
+            kernel-build-${{ matrix.compiler }}-${{ runner.os }}-build-${{ matrix.target }}-
+
+      - name: (Optional) Perform checkpatch validation ...
+        if: steps.decide.outputs.run == 'true' && ( inputs.enable_verbose || 'false' ) == 'true'
+        run: |
+          set -eux
+          set -o pipefail
+          . /tmp/ci_inputs
+
+          scripts/checkpatch.pl --no-tree --strict --terse --root=. $(git diff --name-only HEAD~1)
+
+      - name: Build kernel 6.6.89-cix+ ...
+        if: steps.decide.outputs.run == 'true'
+        env:
+          BUILD_DIR: ${{ env.BUILD_DIR }}
+          CC: ${{ env.CC || env.COMPILER_FLAVOUR || '' }}
+          CXX: ${{ env.CXX || '' }}
+          LD: ${{ env.LD || '' }}
+          LLVM: ${{ env.LLVM || '' }}
+          LLVM_IAS: ${{ env.LLVM_IAS || '' }}
+          CROSS_COMPILE: ${{ env.CROSS_COMPILE || '' }}
+          PATH: ${{ env.PATH || '' }}
+        run: |
+          set -eux
+          set -o pipefail
+          . /tmp/ci_inputs
+
+          [[ -n "${CC}" ]] || . "${GITHUB_ENV}"
+          if [[ -z "${CC:-}" ]]; then
+            if [[ -n "${COMPILER_FLAVOUR:-}" ]]; then
+              CC="${COMPILER_FLAVOUR}"
+            fi
+          fi
+          if [[ -n "${CC:-}" ]]; then
+            echo >&2 "WARN:  No value for 'CC' set"
+          fi
+          export CC CXX LD LLVM LLVM_IAS CROSS_COMPILE
+
+          declare -i rc=0
+
+          TIMESTAMP() {
+            date -u +"%Y-%m-%dT%H:%M:%SZ"
+          }
+          echo "Starting build step at $(TIMESTAMP) ..."
+
+          cd "${GITHUB_WORKSPACE}" || exit 1
+
+          # helper small scripts placed into .github/scripts in this repo
+          LOGDIR=".github/tmp-logs/${BUILD_ID}"
+          mkdir -p "${LOGDIR}"
+
+          chmod +x .github/scripts/merge-overlay.sh
+          chmod +x .github/scripts/set-kconfig-option.sh
+
+          case "${MATRIX_TARGET:-}" in
+            defconfig)
+              MAKE_TARGET="defconfig"
+              ;;
+            overlay)
+              # overlay: start from defconfig then merge user overlay
+              MAKE_TARGET="defconfig"
+              ;;
+            allyesconfig)
+              MAKE_TARGET="allyesconfig"
+              ;;
+            allnoconfig)
+              MAKE_TARGET="allnoconfig"
+              ;;
+            allmodconfig)
+              MAKE_TARGET="allmodconfig"
+              ;;
+            randconfig)
+              MAKE_TARGET="randconfig"
+              ;;
+            *)
+              echo >&2 "FATAL: Unknown config target: ${MATRIX_TARGET:-}"
+              exit 1
+              ;;
+          esac
+
+          if [[ "${INPUT_CLEAN}" == 'true' ]]; then
+            make "O=${BUILD_DIR}" clean
+          fi
+
+          # Show the available targets...
+          #make help 2>&1 | tee "${LOGDIR}/help.txt"
+
+          declare -a MK_ARGS=()
+
+          # Run 'make' to produce base .config in build directory
+          if [ "${INPUT_VERBOSE:-}" = 'true' ]; then
+            MK_ARGS+=( "V=1" )
+          fi
+          if [[ -n "${INPUT_ARCH:-}" ]]; then
+            MK_ARGS+=( "ARCH=${INPUT_ARCH}" )
+          fi
+          MK_ARGS+=( "-j${INPUT_JOBS}" )
+          if [[ -n "${INPUT_VARS:-}" ]]; then
+            MK_ARGS+=( "${INPUT_VARS}" )
+          fi
+          MK_ARGS+=( "O=${BUILD_DIR}" )
+
+          echo "Running base config generation: make ${MK_ARGS[*]} ${MAKE_TARGET} (with CC=${CC}) ..."
+          time make "${MK_ARGS[@]}" ${MAKE_TARGET} > "${LOGDIR}/${MATRIX_TARGET}.log" 2>&1 || rc=${?}
+          sleep 1
+          cat "${LOGDIR}/${MATRIX_TARGET}.log"
+          if grep -qm 1 -e 'warnings\?' -e 'error:' -e 'Error' -e 'ERROR' "${LOGDIR}/${MATRIX_TARGET}.log"; then
+            printf '\n-----\n\n'
+            grep --colour=always -C 5 -e 'warnings\?' -e 'error:' -e 'Error' -e 'ERROR' "${LOGDIR}/${MATRIX_TARGET}.log" || :
+          fi
+          if (( rc )); then
+            echo >&2 "::error file=${GITHUB_WORKSPACE},line=1::Config generation failed (${rc}) for ${MATRIX_TARGET} - see ${MATRIX_TARGET}.log"
+            tail -n +1 "${LOGDIR}/${MATRIX_TARGET}.log"
+            #echo "Uploading logs in later step ..."
+          else  # rc == 0
+            # Handle overlay merging if requested
+            if [[ "${MATRIX_TARGET}" == 'overlay' && -n "${INPUT_OVERLAY:-}" ]]; then
+              if ! [[ -s "${INPUT_OVERLAY}" ]]; then
+                echo >&2 "::error:: Overlay path '${INPUT_OVERLAY}' not found in repo; skipping overlay merge."
+              else
+                echo "Merging overlay '${INPUT_OVERLAY}' into '${BUILD_DIR}/.config' ..."
+                if ! .github/scripts/merge-overlay.sh \
+                    "${BUILD_DIR}/.config" \
+                    "${INPUT_OVERLAY}" \
+                    "${BUILD_DIR}" >"${LOGDIR}/merge.log" 2>&1
+                then
+                  echo >&2 "::error:: .github/scripts/merge_config.sh failed (${?}); see merge.log"
+                fi
+              fi
+            fi
+
+            # Ensure enforce_werror_section_flags are set
+            if [[ "${INPUT_ENFORCE:-}" = 'true' ]]; then
+              echo "Enforcing 'enforce_werror_section_flags' ..."
+              .github/scripts/set-kconfig-option.sh "${BUILD_DIR}/.config" \
+                CONFIG_SECTION_MISMATCH_WARN_ONLY n >> "${LOGDIR}/kconfig.log" 2>&1 || :
+              .github/scripts/set-kconfig-option.sh "${BUILD_DIR}/.config" \
+                CONFIG_DEBUG_SECTION_MISMATCH y >> "${LOGDIR}/kconfig.log" 2>&1 || :
+              .github/scripts/set-kconfig-option.sh "${BUILD_DIR}/.config" \
+                CONFIG_WERROR n >> "${LOGDIR}/kconfig.log" 2>&1 || :
+            fi
+
+            # Finally build the kernel (vmlinux) to validate compile
+            echo "Building vmlinux & modules to validate source ..."
+            
+            echo "Running: make ${MK_ARGS[*]} vmlinux modules (CC=${CC}) ..."
+            time make "${MK_ARGS[@]}" vmlinux modules >> "${LOGDIR}/${MATRIX_TARGET}.log" 2>&1 || rc=${?}
+            sleep 1
+            cat "${LOGDIR}/${MATRIX_TARGET}.log"
+            if grep -qm 1 -e 'warnings\?' -e 'error:' -e 'Error' -e 'ERROR' \
+                "${LOGDIR}/${MATRIX_TARGET}.log"
+            then
+              printf '\n-----\n\n'
+              grep --colour=always -C 5 -e 'warnings\?' -e 'error:' -e 'Error' -e 'ERROR' \
+                "${LOGDIR}/${MATRIX_TARGET}.log" || :
+            fi
+            if (( rc )); then
+              echo >&2 "::error file=${GITHUB_WORKSPACE}::Build failed (${?}) for ${MATRIX_TARGET} with ${MATRIX_COMPILER}. See build.log"
+              # don't exit; allow artefact upload step to run for diagnosis
+            fi
+          fi  # rc == 0
+
+          # save a small set of outputs for inspection
+          mkdir -p "${BUILD_DIR}/artefacts/${MATRIX_TARGET}"
+          cp -v "${BUILD_DIR}/"*.log "${BUILD_DIR}/artefacts/${MATRIX_TARGET}/" 2>/dev/null || :
+          cp -v "${BUILD_DIR}/.config" "${BUILD_DIR}/artefacts/${MATRIX_TARGET}/.config" 2>/dev/null || :
+          cp -v "${BUILD_DIR}/vmlinux" "${BUILD_DIR}/artefacts/${MATRIX_TARGET}/vmlinux" 2>/dev/null || :
+          cp -v "${BUILD_DIR}/System.map" "${BUILD_DIR}/artefacts/${MATRIX_TARGET}/System.map" 2>/dev/null || :
+
+          exit ${rc}
+
+      - name: (Optional) Save build cache ...
+        if: steps.decide.outputs.run == 'true' && ( inputs.cache_enabled || 'true' ) == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.BUILD_DIR }}
+            .ccache
+          key: kernel-build-save-${{ matrix.compiler }}-${{ runner.os }}-build-${{ matrix.target }}-${{ github.sha }}-config-${{ hashFiles(inputs.overlay_path || 'arch/arm64/configs/cix.config') }}
+
+      - name: (Optional) Upload build artefacts ...
+        if: steps.decide.outputs.run == 'true' && ( inputs.enable_artefacts || 'true' ) == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-ci-logs-${{ matrix.compiler }}-${{ matrix.target }}-${{ env.BUILD_ID }}
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            .github/tmp-logs
+            ${{ env.BUILD_DIR }}/artefacts
+            ${{ env.BUILD_DIR }}/**/*.log
+...
