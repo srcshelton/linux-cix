@@ -2158,7 +2158,7 @@ pinctrl_gmac1: pinctrl_gmac1 {
         dma-names = "tx","rx";
 };
 &uart1{
-        status = "okay";
+        status = "disabled";
         pinctrl-names = "default";
         pinctrl-0 = <&pinctrl_fch_uart1>;
         dmas = <&fch_dmac 2 4>, <&fch_dmac 3 5>;
