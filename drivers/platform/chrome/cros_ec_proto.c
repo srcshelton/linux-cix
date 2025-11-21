@@ -872,7 +872,7 @@ EXPORT_SYMBOL(cros_ec_get_next_event);
  */
 u32 cros_ec_get_host_event(struct cros_ec_device *ec_dev)
 {
-	u32 host_event;
+	u32 host_event = 0;
 
 	if (!ec_dev->mkbp_event_supported)
 		return 0;
@@ -884,7 +884,7 @@ u32 cros_ec_get_host_event(struct cros_ec_device *ec_dev)
 		dev_warn(ec_dev->dev, "Invalid host event size\n");
 		return 0;
 	}
-#ifndef CONFIG_CIX_EC
+#if !IS_ENABLED(CONFIG_CIX_EC)
 	host_event = get_unaligned_le32(&ec_dev->event_data.data.host_event);
 #endif
 	return host_event;

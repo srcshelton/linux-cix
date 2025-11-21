@@ -2,5 +2,6 @@
 config CIX_EC
 	tristate "CIX Embedded Controller"
 	depends on CROS_EC_I2C
+	select IIO
 	help
 	  If you say Y here, you get support for talking to the CIX EC over an I2C bus.
