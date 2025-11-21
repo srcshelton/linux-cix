@@ -18,7 +18,9 @@
  */
 
 #include <linux/soc/cix/dst_fdleak.h>
+#include <linux/compat.h>
 #include <linux/module.h>
+#include <linux/sched/task_stack.h>
 #include <asm/ioctls.h>
 #include <linux/vmalloc.h>
 #include <linux/mm.h>
@@ -511,7 +513,11 @@ int fdleak_report(enum fdleak_wp_id wpid, int probe_id)
 		return -1;
 	}
 
+#ifdef CONFIG_COMPAT
 	fdleak_table[wpid].is_32bit[idx_pid] = is_compat_task();
+#else
+	fdleak_table[wpid].is_32bit[idx_pid] = 0;
+#endif
 	if (fdleak_table[wpid].list[idx_pid] && current->mm) {
 		memset(stack_entries, 0, sizeof(stack_entries));
 		trace.nr_entries = 0;

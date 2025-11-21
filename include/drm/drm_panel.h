@@ -26,6 +26,7 @@
 
 #include <linux/err.h>
 #include <linux/errno.h>
+#include <linux/fwnode.h>
 #include <linux/list.h>
 #include <linux/mutex.h>
 

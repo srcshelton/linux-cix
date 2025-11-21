@@ -680,11 +680,13 @@ static void rts5453h_shutdown(struct i2c_client *client)
 }
 
 static const struct dev_pm_ops rts5453h_pm_ops = {
+#ifdef CONFIG_PM_SLEEP
         .suspend = rts5453h_suspend,
         .resume = rts5453h_resume,
         .freeze = rts5453h_suspend,
         .thaw = rts5453h_resume,
         .restore = rts5453h_restore,
+#endif
 };
 
 MODULE_DEVICE_TABLE(i2c, rts5453h_id);

@@ -547,7 +547,7 @@ struct linlondp_plane_state;
 struct linlondp_crtc_state;
 struct linlondp_crtc;
 
-void pipeline_composition_size(struct linlondp_crtc_state *kcrtc_st,
+void linlondp_pipeline_composition_size(struct linlondp_crtc_state *kcrtc_st,
 			       bool side_by_side, u16 *hsize, u16 *vsize,
 			       bool is_overlap);
 

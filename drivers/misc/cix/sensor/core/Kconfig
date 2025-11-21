@@ -1,7 +1,6 @@
 config CIX_SENSORHUB
-	tristate "sensorhub architecture for CIX package"
+	tristate "CIX sensorhub core framework"
 	help
-	  It support CIX sensorhub architecture.
-	  If this option is set,
-	  it will support
-	  cix sensorhub architecture.
+	  Core framework for the CIX sensorhub architecture.
+	  Provides common sensor management and communication layers
+	  used by the CIX sensorhub driver.

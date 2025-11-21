@@ -120,19 +120,25 @@ static void cdns_top_start_role(struct work_struct *work)
 
 	cdns_role_stop(cdns);
 	mutex_lock(&cdns->plat_reset_mutex);
-	if (cdns->new_role != USB_ROLE_NONE)
+
+	if (cdns->new_role != USB_ROLE_NONE) {
 		ret = cdnsp_platform_reset(cdns->dev);
-	if (ret) {
-		mutex_unlock(&cdns->plat_reset_mutex);
-		mutex_unlock(&cdns->role_mutex);
-		dev_err(cdns->dev, "failed to platform reset and set role %d\n", cdns->new_role);
-		cdns->died = true;
-		goto pm_out;
+		if (ret) {
+			mutex_unlock(&cdns->plat_reset_mutex);
+			mutex_unlock(&cdns->role_mutex);
+			dev_err(cdns->dev, "failed to platform reset and set role %d\n",
+				cdns->new_role);
+			cdns->died = true;
+			goto pm_out;
+		}
+
+		if (cdns->u3_disable)
+			cdnsp_platform_u3_disable(cdns->dev);
+
+		cdns->plat_reset_complete = true;
 	}
-	if (cdns->u3_disable)
-		cdnsp_platform_u3_disable(cdns->dev);
-	cdns->plat_reset_complete = true;
 	mutex_unlock(&cdns->plat_reset_mutex);
+
 	if (cdns->version == CDNSP_CONTROLLER_V2)
 		writel(1, &cdns->otg_cdnsp_regs->simulate);
 	ret = cdns_role_start(cdns, cdns->new_role);

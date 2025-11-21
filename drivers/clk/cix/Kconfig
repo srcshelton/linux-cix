@@ -5,16 +5,12 @@ menu "Clock support for Cixtech"
 comment "Clock options for Cixtech CPUs:"
 
 config COMMON_CLK_CIX
-	tristate "Support for Cix's clock controllers"
+	bool "Support for Cix's clock controllers"
 	depends on ARCH_CIX || COMPILE_TEST
 	select REGMAP_MMIO
 	select RESET_CONTROLLER
 
-config CIX_CLK_DEBUG
-	tristate "Cix SoC Clock Debug Driver"
-	depends on COMMON_CLK_CIX
-	help
-	  Support on-line debug soc clocks from the debugfs interface.
+if COMMON_CLK_CIX
 
 config CIX_ACPI_CLK
         bool "CIX Clock Management API for acpi"
@@ -24,11 +20,18 @@ config CIX_ACPI_CLK
           Say Y if you want to support clock driver.
 
 config CLK_SKY1_AUDSS
-	bool "Cixtech Sky1 Audio Subsystem Clock Driver"
-	depends on (COMMON_CLK_CIX || COMPILE_TEST) && CIX_ACPI_CLK
+	tristate "Cixtech Sky1 Audio Subsystem Clock Driver"
+	depends on CIX_ACPI_CLK || COMPILE_TEST
 	help
 	    Support for the Audio Subsystem clock controller present on
 	    Cixtech Sky1 SoC. Choose M or Y here if you want to build this
 	    driver.
+
+config CIX_CLK_DEBUG
+	tristate "Cix SoC Clock Debug Driver"
+	help
+	  Support on-line debug soc clocks from the debugfs interface.
+
+endif # COMMON_CLK_CIX
 
 endmenu

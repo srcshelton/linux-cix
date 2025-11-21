@@ -13,6 +13,7 @@
 #include <linux/interconnect.h>
 #include <linux/pm_opp.h>
 #include <linux/regulator/consumer.h>
+#include <drm/gpu_scheduler.h>
 
 #include "msm_drv.h"
 #include "msm_fence.h"
@@ -347,7 +348,8 @@ struct msm_gpu_perfcntr {
  * DRM_SCHED_PRIORITY_KERNEL priority level is treated specially in some
  * cases, so we don't use it (no need for kernel generated jobs).
  */
-#define NR_SCHED_PRIORITIES (1 + DRM_SCHED_PRIORITY_HIGH - DRM_SCHED_PRIORITY_LOW)
+#define NR_SCHED_PRIORITIES \
+        (DRM_SCHED_PRIORITY_COUNT - DRM_SCHED_PRIORITY_KERNEL - 1)
 
 /**
  * struct msm_file_private - per-drm_file context

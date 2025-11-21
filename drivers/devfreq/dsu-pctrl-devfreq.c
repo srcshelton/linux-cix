@@ -285,6 +285,7 @@ static int dsu_pctrl_set_active_portions(struct device *dev,
 	portion_active = ((1UL << portions) - 1) << PORTION_1;
 
 	arm_smccc_smc(CIX_SIP_DSU_GET_PD, 0, 0, 0, 0, 0, 0, 0, &res);
+	portion_control = 0;
 	if (res.a0)
 		portion_control = res.a0;
 

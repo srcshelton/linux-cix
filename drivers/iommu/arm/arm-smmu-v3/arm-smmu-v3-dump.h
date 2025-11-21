@@ -64,6 +64,6 @@ struct smmu_master_dump_info {
 	size_t size;
 };
 
-int smmu_master_dump(struct smmu_master_dump_info *info);
+int arm_smmu_v3_dump_init(void);
 
 #endif /* __ARM_SMMU_V3_DUMP_H__ */

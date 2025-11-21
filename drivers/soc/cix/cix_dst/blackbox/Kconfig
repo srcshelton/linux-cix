@@ -4,7 +4,7 @@ menu "RDR - Running data recorder menu"
 
 config PLAT_BBOX
 	bool "kernel run data recorder"
-	depends on SYSFS
+	depends on SYSFS && EXPERT
 	select BCH
 	default n
 	help

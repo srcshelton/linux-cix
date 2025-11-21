@@ -19,23 +19,6 @@
 #define pr_fmt(fmt) "clk-debug: " fmt
 static struct clk *debug_clk;
 
-#ifdef MODULE
-struct clk *__clk_lookup(const char *name)
-{
-	static struct clk* (*func)(const char *name);
-
-	if (!func)
-		func = (void *)kallsyms_lookup_name(__func__);
-
-	if (!func) {
-		pr_err("can't find symbol: %s\n", __func__);
-		return NULL;
-	}
-
-	return func(name);
-}
-#endif
-
 static ssize_t parent_write(struct file *file, const char __user *buffer,
 			    size_t count, loff_t *ppos)
 {
@@ -58,7 +41,7 @@ static ssize_t parent_write(struct file *file, const char __user *buffer,
 		return -EINVAL;
 	}
 
-	clk = __clk_lookup(clk_name);
+	clk = clk_get_sys(NULL, clk_name);
 	if (!clk)
 		pr_err("Can't find the clock, have a look in /sys/kernel/debug/clk\n");
 
@@ -209,7 +192,7 @@ static ssize_t clk_write(struct file *file, const char __user *buffer,
 		return -EINVAL;
 	}
 
-	clk = __clk_lookup(clk_name);
+	clk = clk_get_sys(NULL, clk_name);
 	if (clk)
 		pr_info("success get %s clock, its rate = %lu, its parent is %s\n",
 			clk_name, clk_get_rate(clk),

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
+#include <linux/arm-smccc.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
 #include <linux/slab.h>
@@ -198,7 +199,7 @@ static int __init sky1_pdc_irqchip_init(struct device_node *node,
 }
 
 #ifdef CONFIG_ACPI
-static int __init sky1_acpi_pdc_irqchip_init(struct platform_device *pdev)
+static int /* __init */ sky1_acpi_pdc_irqchip_init(struct platform_device *pdev)
 {
 	struct irq_domain *domain;
 	struct pdcv1_irqchip_data *cd;

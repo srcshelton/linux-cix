@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 config DFX_HUNGTASK
 	bool "DFX hungtask"
-	depends on DETECT_HUNG_TASK
+	depends on ARCH_CIX_FPGA && DETECT_HUNG_TASK && EXPERIMENTAL
 	default n
 	help
 	  Base DFX hungtask module

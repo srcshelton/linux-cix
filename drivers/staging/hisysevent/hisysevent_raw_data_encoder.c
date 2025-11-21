@@ -121,3 +121,4 @@ int int64_t_varint_encode(struct hisysevent_raw_data *raw_data, s64 val)
 	return signed_varint_encode(raw_data, VARINT, val);
 }
 EXPORT_SYMBOL_GPL(int64_t_varint_encode);
+MODULE_LICENSE("GPL v2");

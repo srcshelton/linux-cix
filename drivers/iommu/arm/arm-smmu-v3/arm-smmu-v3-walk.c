@@ -194,7 +194,6 @@ int smmu_master_walk_register(struct arm_smmu_master *master)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(smmu_master_walk_register);
 
 void smmu_master_walk_unregister(struct arm_smmu_master *master)
 {
@@ -211,7 +210,6 @@ void smmu_master_walk_unregister(struct arm_smmu_master *master)
 
 	return;
 }
-EXPORT_SYMBOL_GPL(smmu_master_walk_unregister);
 
 int smmu_master_walk(struct smmu_master_handle *mhdl)
 {
@@ -224,11 +222,9 @@ int smmu_master_walk(struct smmu_master_handle *mhdl)
 
 	return 0;
 }
-EXPORT_SYMBOL_GPL(smmu_master_walk);
 
-static int __init smmu_info_init(void)
+int arm_smmu_v3_walk_init(void)
 {
 	mutex_init(&master_list_lock);
 	return 0;
 }
-subsys_initcall(smmu_info_init)

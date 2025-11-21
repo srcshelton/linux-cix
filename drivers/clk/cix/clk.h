@@ -8,11 +8,7 @@
 
 #include <linux/clk-provider.h>
 
-#ifndef MODULE
 void cix_uart_clocks_register(void);
-#else
-static inline void cix_uart_clocks_register(void)
-{
-}
-#endif
+//static int cix_clk_disable_uart(void);
+
 #endif

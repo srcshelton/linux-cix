@@ -461,7 +461,7 @@ static int evm_xattr_change(struct mnt_idmap *idmap,
 		goto out;
 	}
 
-	if (rc == xattr_value_len)
+	if (xattr_value && xattr_data && rc == xattr_value_len)
 		rc = !!memcmp(xattr_value, xattr_data, rc);
 	else
 		rc = 1;

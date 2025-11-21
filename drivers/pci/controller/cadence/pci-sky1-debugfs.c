@@ -970,6 +970,8 @@ static void sky1_pcie_set_speed_retrain(struct sky1_pcie *pcie)
 			speed = "16 GT/sec";
 			break;
 		default:
+			dev_warn(pcie->dev, "unexpected link speed code %u\n", val & 0x7);
+			speed = "unknown or invalid";
 			break;
 		}
 		dev_info(pcie->dev, "current link speed is %s\n", speed);

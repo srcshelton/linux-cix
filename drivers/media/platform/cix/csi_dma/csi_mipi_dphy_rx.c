@@ -613,6 +613,7 @@ static int mipi_dphy_dev_rpm_resume(struct device *dev)
 	return 0;
 }
 
+#ifdef CONFIG_PM_SLEEP
 static int mipi_dphy_dev_suspend(struct device *dev)
 {
 	return pm_runtime_force_suspend(dev);
@@ -635,6 +636,7 @@ static int mipi_dphy_dev_resume(struct device *dev)
 
 	return 0;
 }
+#endif
 
 static const struct dev_pm_ops mipi_dphy_dev_pm_ops = {
 #ifdef CONFIG_PM_SLEEP

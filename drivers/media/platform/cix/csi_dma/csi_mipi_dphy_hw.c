@@ -101,7 +101,6 @@ static int mipi_dphy_config(struct dphy_rx *dphy, u32 data_rate)
 	u8 num_lanes = 0;
 	u32 PhyVal = 0;
 	int loop;
-	int ret;
 
 	if (data_rate < HIGH_SPEED_2500M) {
 		switch (hw->num_lanes) {
@@ -354,6 +353,7 @@ static int mipi_dphy_config(struct dphy_rx *dphy, u32 data_rate)
 		PhyVal = DPHY_POWER_ISLAND_EN_DATA_VAL;
 
 		mipi_dphy_write(hw, DPHY_POWER_ISLAND_EN_DATA, PhyVal);
+
 		/* step 8 */
 		PhyVal = DPHY_POWER_ISLAND_EN_CLK_VAL;
 		mipi_dphy_write(hw, DPHY_POWER_ISLAND_EN_CLK, PhyVal);
@@ -366,13 +366,14 @@ static int mipi_dphy_config(struct dphy_rx *dphy, u32 data_rate)
 			if (PhyVal & 0x01) {
 				dev_info(dev, "dphy is ready PhyVal = 0x%x\n",
 					 PhyVal);
-				break;
+				return 0;
 			}
 
 			udelay(500);
 		}
 
-		return ret;
+		dev_warn(dev, "dphy did not become ready in time\n");
+		return -ETIMEDOUT;
 
 	} else {
 		dev_info(dev, "mipi_dphy lane rate work at 2.5G\n");
@@ -383,9 +384,9 @@ static int mipi_dphy_config(struct dphy_rx *dphy, u32 data_rate)
 		}
 
 		msleep(100);
-	}
 
-	return 0;
+		return 0;
+	}
 }
 
 static int csi2_dphy_hw_stream_on(struct dphy_rx *dphy, unsigned int id,
@@ -514,7 +515,7 @@ static int mipi_dphy_hw_probe(struct platform_device *pdev)
 
 	dphy->drv_data = device_get_match_data(dev);
 
-	mipi_dphy_hw_parse(dphy);
+	ret = mipi_dphy_hw_parse(dphy);
 
 	mutex_init(&dphy->mutex);
 

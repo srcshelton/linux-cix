@@ -261,6 +261,7 @@ static void rx8900_work(struct work_struct *work)
 	struct i2c_client *client = rx8900->client;
 	struct mutex *lock = &rx8900->rtc->ops_lock;
 	u8 flags;
+	struct irq_data *data;
 	struct irq_desc *desc;
 
 	mutex_lock(lock);
@@ -318,7 +319,7 @@ static void rx8900_work(struct work_struct *work)
 	// acknowledge IRQ
 	rx8900_write_reg(client, RX8900_BTC_FLAG, 0x0f & flags);
 out:
-	struct irq_data *data = irq_get_irq_data(client->irq);
+	data = irq_get_irq_data(client->irq);
 	desc = irq_data_to_desc(data);
 	if (!rx8900->exiting && desc && desc->depth)
 		enable_irq(client->irq);

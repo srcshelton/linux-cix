@@ -363,6 +363,7 @@ static int pcie_phy_common_init(struct cix_pcie_phy *pcie_phy)
 		ret = regmap_multi_reg_write(pcie_phy->phy_regmap, pcie_x211, ARRAY_SIZE(pcie_x211));
 	} else {
 		dev_err(pcie_phy->dev, "Invalid Phy Config\n");
+		ret = -EINVAL;
 	}
 
 	if (ret) {

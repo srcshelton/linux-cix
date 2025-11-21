@@ -669,15 +669,14 @@ static void trilin_dp_encoder_disable(struct drm_encoder *encoder,
 	int rc;
 	struct trilin_dp *dp = encoder_to_dp(encoder);
 	struct trilin_dp_panel *dp_panel = &dp->dp_panel;
-	struct drm_crtc *crtc;
-	struct drm_crtc_state *new_crtc_state;
 
 	if (!(dp->state & DP_STATE_INITIALIZED)) {
 		DP_DEBUG("[not init]");
 		return;
 	}
 
-	crtc = get_crtc_from_encoder(encoder, state);
+	struct drm_crtc *crtc = get_crtc_from_encoder(encoder, state);
+	struct drm_crtc_state *new_crtc_state = NULL;
 	if (crtc)
 		new_crtc_state = drm_atomic_get_new_crtc_state(state, crtc);
 

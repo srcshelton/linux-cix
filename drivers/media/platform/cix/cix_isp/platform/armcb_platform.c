@@ -53,8 +53,10 @@ void BSP_Init(void)
 	armcb_spi_set_hwchnl(0); // TODO: add motor driver sometime after
 
 // HDMI Initialize
+#if 0 /* Headers defining HDMIOUT_RGB444_8BIT etc. are missing */
 #ifdef CONFIG_ARENA_FPGA_PLATFORM
 	armcb_hdmi_init(RES1080P30FPS, RES1080P60FPS, HDMIOUT_RGB444_8BIT);
+#endif
 #endif
 	// Select Source
 	regval = armcb_apb2_read_reg(0x0);

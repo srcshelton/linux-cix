@@ -417,7 +417,9 @@ out_free:
 
 	return ret;
 }
+#if 0
 EXPORT_SYMBOL_GPL(cix_acpi_parse_clkt_handle);
+#endif
 
 int cix_acpi_parse_clkt(struct device *dev, const char *cname,
 		struct clk_hw *(get_hw)(struct device *, int))
@@ -475,7 +477,9 @@ static const struct acpi_device_id __maybe_unused cix_acpi_clk_match[] = {
 	{ "CIXHA010", 0 },
 	{},
 };
+#if 0
 MODULE_DEVICE_TABLE(acpi, cix_acpi_clk_match);
+#endif
 
 static struct platform_driver cix_acpi_clk_driver = {
 	.driver = {
@@ -501,6 +505,8 @@ static void __exit cix_acpi_clk_exit(void)
 }
 module_exit(cix_acpi_clk_exit);
 
+#if 0
 MODULE_AUTHOR("Copyright 2024 Cix Technology Group Co., Ltd.");
 MODULE_DESCRIPTION("Cix acpi clock driver");
 MODULE_LICENSE("GPL v2");
+#endif

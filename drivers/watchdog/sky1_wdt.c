@@ -75,7 +75,7 @@ static int sky1_wdt_restart(struct watchdog_device *wdd,
 	u32 wcs_val;
 
 	regmap_read(wdt->regmap_ctrl, SKY1_WDT_WCS_RW, &wcs_val);
-	if (!wcs_val & SKY1_WDT_WCS_ENABLE) {
+	if (!(wcs_val & SKY1_WDT_WCS_ENABLE)) {
 		wcs_val |= SKY1_WDT_WCS_ENABLE;
 		regmap_write(wdt->regmap_ctrl, SKY1_WDT_WCS_RW, wcs_val);
 	}

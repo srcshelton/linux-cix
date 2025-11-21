@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
-/*
+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
+ *
  * Copyright (c) 2019 Synopsys, Inc. and/or its affiliates.
  *
  * Author: Vitor Soares <vitor.soares@synopsys.com>

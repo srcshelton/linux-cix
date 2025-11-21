@@ -19,8 +19,10 @@
 u32 CDMA_Read_Int32(u32 offset);
 void CDMA_Write_Int32(u32 offset, u32 value);
 
+#ifdef CONFIG_ARENA_FPGA_PLATFORM
 u32 VDMA_Read_Int32(u32 baseaddr, u32 offset);
 void VDMA_Write_Int32(u32 baseaddr, u32 offset, u32 value);
+#endif
 
 s32 xdma(u32 unRmtAddr, u32 unLocalAddr, u32 unBytes, u32 bLocal2Rmt);
 

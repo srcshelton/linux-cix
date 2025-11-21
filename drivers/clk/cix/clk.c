@@ -3,14 +3,14 @@
  *Copyright 2024 Cix Technology Group Co., Ltd.
  */
 
+#include <linux/kernel.h>
 #include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/err.h>
-#include <linux/module.h>
 #include <linux/of.h>
+#include <linux/init.h>
+#include <linux/slab.h>
 #include "clk.h"
-
-#ifndef MODULE
 
 static bool cix_uart_clocks_keep;
 static int cix_uart_clocks_enabled;
@@ -75,8 +75,3 @@ static int __init cix_clk_disable_uart(void)
 	return 0;
 }
 late_initcall_sync(cix_clk_disable_uart);
-#endif
-
-MODULE_AUTHOR("Copyright 2024 Cix Technology Group Co., Ltd.");
-MODULE_DESCRIPTION("Cix clock driver");
-MODULE_LICENSE("GPL v2");

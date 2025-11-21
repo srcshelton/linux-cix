@@ -114,3 +114,4 @@ void raw_data_destroy(struct hisysevent_raw_data *raw_data)
 	kfree(raw_data);
 }
 EXPORT_SYMBOL_GPL(raw_data_destroy);
+MODULE_LICENSE("GPL v2");

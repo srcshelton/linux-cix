@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 config HISYSEVENT
-	tristate "Enable hisysevent"
-	depends on HIEVENT
+	bool "Enable HiSysEvent framework"
+	depends on HIEVENT && EXPERIMENTAL
+	default y if PLAT_BBOX
 	help
-	  Say Y here to enable hisysevent feature support.
+	  Say Y here to enable the Android OpenHarmony HiSysEvent framework.

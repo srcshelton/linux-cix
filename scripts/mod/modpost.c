@@ -51,7 +51,7 @@ static bool extra_warn;
  * Cut off the warnings when there are too many. This typically occurs when
  * vmlinux is missing. ('make modules' without building vmlinux.)
  */
-#define MAX_UNRESOLVED_REPORTS	10
+#define MAX_UNRESOLVED_REPORTS	100
 static unsigned int nr_unresolved;
 
 /* In kernel, this size is defined in linux/module.h;

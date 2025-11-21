@@ -1467,6 +1467,7 @@ static int cix_udphy_probe(struct platform_device *pdev)
 	g_status = ioremap(GOP_STATUS_ADDRESS, GOP_STATUS_SIZE);
 	if (g_status) {
 		gop_value = readb(&g_status->phy_status[id]);
+	  dev_info(dev, "get phy-status:[%d]%d\n", id, gop_value);
 		switch(gop_value){
 		case USB_ROLE_HOST:
 			udphy->phy_reset = false;
@@ -1486,7 +1487,6 @@ static int cix_udphy_probe(struct platform_device *pdev)
 		iounmap(g_status);
 	}
 
-	dev_info(dev, "get phy-status:[%d]%d\n", id, gop_value);
 	if (udphy->phy_reset) {
 		dev_info(dev, "phy reset\n");
 		reset_control_assert(udphy->reset);

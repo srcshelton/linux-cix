@@ -87,11 +87,15 @@
 #define CREATE_TRACE_POINTS
 #include "gpu_scheduler_trace.h"
 
-#ifdef CONFIG_LOCKDEP
-static struct lockdep_map drm_sched_lockdep_map = {
-	.name = "drm_sched_lockdep_map"
-};
-#endif
+/*
+ * Only used when calling alloc_ordered_workqueue_lockdep_map() which appears
+ * to have been introduced in a patch to linux-6.12(!) in August 2024...
+ */
+//#ifdef CONFIG_LOCKDEP
+//static struct lockdep_map drm_sched_lockdep_map = {
+//	.name = "drm_sched_lockdep_map"
+//};
+//#endif
 
 #define to_drm_sched_job(sched_job)		\
 		container_of((sched_job), struct drm_sched_job, queue_node)
@@ -1292,13 +1296,17 @@ int drm_sched_init(struct drm_gpu_scheduler *sched,
 		sched->submit_wq = submit_wq;
 		sched->own_submit_wq = false;
 	} else {
-#ifdef CONFIG_LOCKDEP
-		sched->submit_wq = alloc_ordered_workqueue_lockdep_map(name,
-								       WQ_MEM_RECLAIM,
-								       &drm_sched_lockdep_map);
-#else
+/*
+ * alloc_ordered_workqueue_lockdep_map() appears to have been introduced in a
+ * patch to linux-6.12(!) in August 2024...
+ */
+//#ifdef CONFIG_LOCKDEP
+//		sched->submit_wq = alloc_ordered_workqueue_lockdep_map(name,
+//								       WQ_MEM_RECLAIM,
+//								       &drm_sched_lockdep_map);
+//#else
 		sched->submit_wq = alloc_ordered_workqueue(name, WQ_MEM_RECLAIM);
-#endif
+//#endif
 		if (!sched->submit_wq)
 			return -ENOMEM;
 

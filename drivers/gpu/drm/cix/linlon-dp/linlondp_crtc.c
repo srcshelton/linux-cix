@@ -127,7 +127,9 @@ static int linlondp_crtc_prepare(struct linlondp_crtc *kcrtc)
 	struct linlondp_dev *mdev = kcrtc->base.dev->dev_private;
 	struct linlondp_pipeline *master = kcrtc->master;
 	struct linlondp_crtc_state *kcrtc_st = to_kcrtc_st(kcrtc->base.state);
+#if !IS_ENABLED(CONFIG_DRM_LINLONDP_CLOCK_FIXED)
 	struct drm_display_mode *mode = &kcrtc_st->base.adjusted_mode;
+#endif
 	u32 new_mode;
 	int err;
 
@@ -633,10 +635,12 @@ static enum drm_mode_status
 linlondp_crtc_mode_valid(struct drm_crtc *crtc,
 			 const struct drm_display_mode *m)
 {
-	struct linlondp_dev *mdev = crtc->dev->dev_private;
 	struct linlondp_crtc *kcrtc = to_kcrtc(crtc);
 	struct linlondp_pipeline *master = kcrtc->master;
+#if !IS_ENABLED(CONFIG_DRM_LINLONDP_CLOCK_FIXED)
+	struct linlondp_dev *mdev = crtc->dev->dev_private;
 	unsigned long min_pxlclk, min_aclk;
+#endif
 	u8 pixel_per_cycle = 1;
 
 	if (m->flags & DRM_MODE_FLAG_INTERLACE)
@@ -683,7 +687,9 @@ static bool linlondp_crtc_mode_fixup(struct drm_crtc *crtc,
 				     struct drm_display_mode *adjusted_mode)
 {
 	struct linlondp_crtc *kcrtc = to_kcrtc(crtc);
+#if !IS_ENABLED(CONFIG_DRM_LINLONDP_CLOCK_FIXED)
 	unsigned long clk_rate;
+#endif
 	u16 hor_divisor = 1;
 	u8 pixel_per_cycle = 1;
 	bool rebuilt_crtcs = false;

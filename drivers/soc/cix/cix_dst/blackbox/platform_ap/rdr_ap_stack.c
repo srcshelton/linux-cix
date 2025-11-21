@@ -254,21 +254,26 @@ int stack_dump_init(struct platform_device *pdev, struct rdr_safemem_pool *pool)
 void stack_last_task_update(int cpu, struct task_struct *task)
 {
 	struct stack_data *stack;
-	struct vm_struct *vm;
+	//struct vm_struct *vm;
 
 	if (IS_ERR_OR_NULL(head))
 		return;
 
-	stack = &head->stack[cpu];
-	strncpy(stack->comm, task->comm, sizeof(task->comm) - 1);
-	stack->comm[TASK_COMM_LEN - 1] = '\0';
-
-	vm = task->stack_vm_area;
-	if (IS_ERR_OR_NULL(vm)) {
-		// vm = find_vm_area(task->stack);
+	if (!task || !task->stack)
 		return;
-	}
+
+	stack = &head->stack[cpu];
+	strscpy(stack->comm, task->comm, sizeof(stack->comm));
+
 	stack->vaddr = (u64)task->stack;
-	for (int i = 0; i < THREAD_SIZE / PAGE_SIZE; i++)
-		stack->pa[i] = page_to_phys(vm->pages[i]);
+
+	for (int i = 0; i < THREAD_SIZE / PAGE_SIZE; i++) {
+		void *vaddr = (void *)task->stack + (i * PAGE_SIZE);
+		struct page *page = virt_to_page(vaddr);
+
+		if (!page)
+			continue;  // should never happen for kernel linear mapping
+
+		stack->pa[i] = page_to_phys(page);
+	}
 }

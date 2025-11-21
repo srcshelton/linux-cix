@@ -206,12 +206,12 @@ void drm_lut_to_coeffs(struct drm_property_blob *lut_blob, u32 *coeffs,
 	coeffs[num] = BIT(LINLONDP_COLOR_PRECISION);
 }
 
-void drm_lut_to_fgamma_coeffs(struct drm_property_blob *lut_blob, u32 *coeffs)
+void linlondp_drm_lut_to_fgamma_coeffs(struct drm_property_blob *lut_blob, u32 *coeffs)
 {
 	drm_lut_to_coeffs(lut_blob, coeffs, false);
 }
 
-void drm_ctm_to_coeffs(struct drm_property_blob *ctm_blob, u32 *coeffs)
+void linlondp_drm_ctm_to_coeffs(struct drm_property_blob *ctm_blob, u32 *coeffs)
 {
 	struct color_ctm_ext *ctm_ext;
 	u32 i;

@@ -77,7 +77,7 @@ static int acpi_get_pd_state(struct device *dev, u32 pd_id)
 {
 	acpi_handle handle = ACPI_HANDLE(dev);
 	union acpi_object *out_obj, in_obj;
-	u64 ret;
+	int ret;
 	u32 *buf_val;
 	union acpi_object args[1] = {
 		{ .type = ACPI_TYPE_INTEGER, },
@@ -93,19 +93,24 @@ static int acpi_get_pd_state(struct device *dev, u32 pd_id)
 			&in_obj, ACPI_TYPE_BUFFER);
 	if (!out_obj) {
 		ret = -EINVAL;
-		dev_err(dev, "Failed to evaluate DSM object,err!\n");
+		dev_err(dev, "Failed to evaluate DSM object\n");
 		return ret;
 	}
 
 	if (out_obj->buffer.type == ACPI_TYPE_BUFFER) {
 		buf_val = (u32 *) out_obj->buffer.pointer;
 	} else {
-		ret = AE_ERROR;
+		dev_err(dev, "ACPI DSM returned non-buffer object\n");
+		ret = -EINVAL;
 		goto free_acpi_buffer;
 	}
 
-	if(buf_val[0] == SUCCESS)
+	if (buf_val[0] == SUCCESS) {
 		ret = buf_val[1] & PD_MASK;
+	} else {
+		dev_err(dev, "ACPI DSM returned failure code 0x%x\n", buf_val[0]);
+		ret = -EINVAL;
+	}
 
 free_acpi_buffer:
 	ACPI_FREE(out_obj);
@@ -123,12 +128,14 @@ static int acpi_pd_power(struct device *dev, u32 pd_id, bool power_on)
 		state = ACPI_PD_OFF;
 
 	ret = acpi_pd_config_set(dev, pd_id, state);
+	if (ret)
+		return ret;
 
-	if (!ret)
-		ret_state = acpi_get_pd_state(dev, pd_id);
+	ret_state = acpi_get_pd_state(dev, pd_id);
 	if (state != ret_state)
 		return -EIO;
-	return ret;
+
+	return 0;
 }
 
 int acpi_pd_off(struct device *dev, u32 pd_id)

@@ -391,7 +391,8 @@ static int cix_ipbloq_hda_config_init_verbs(struct hdac_bus *bus, unsigned int v
 	struct snd_card *card = dev_get_drvdata(bus->dev);
 	struct azx *chip = card->private_data;
 	struct cix_ipbloq_hda *hda = container_of(chip, struct cix_ipbloq_hda, chip);
-	unsigned int *init_verbs, size;
+	unsigned int *init_verbs = NULL;
+	unsigned int size = 0;
 	int i;
 
 	dev_dbg(bus->dev, "vendor id = 0x%x\n", vendor_id);
@@ -417,6 +418,11 @@ static int cix_ipbloq_hda_config_init_verbs(struct hdac_bus *bus, unsigned int v
 		break;
 	default:
 		dev_err(bus->dev, "unsupport codec chip\n");
+		return -EINVAL;
+	}
+
+	if (!init_verbs || !size) {
+		dev_err(bus->dev, "no init verbs found for vendor 0x%x\n", vendor_id);
 		return -EINVAL;
 	}
 

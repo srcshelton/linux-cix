@@ -256,7 +256,7 @@ static int scmi_clocks_probe(struct scmi_device *sdev)
 	if (err)
 		return err;
 
-#ifdef CONFIG_ARCH_CIX
+#if IS_ENABLED(CONFIG_CIX_ACPI_CLK)
 	if (has_acpi_companion(dev)) {
 		void *driver_data = dev_get_drvdata(dev);
 
@@ -266,7 +266,9 @@ static int scmi_clocks_probe(struct scmi_device *sdev)
 		if (!IS_ERR_OR_NULL(driver_data))
 			dev_set_drvdata(dev, driver_data);
 	}
+#endif
 
+#if IS_ENABLED(CONFIG_COMMON_CLK_CIX)
 	if (!err)
 		cix_uart_clocks_register();
 #endif

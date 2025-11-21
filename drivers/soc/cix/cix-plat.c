@@ -92,6 +92,7 @@ static int __init parse_gop(char *arg)
 }
 early_param("efifb_enable", parse_gop);
 
+#ifdef CONFIG_ARM_SMMU_V3
 static void smmu_pcie_quirks(struct device *dev)
 {
 	struct arm_smmu_master *master;
@@ -161,6 +162,7 @@ static int smmu_attach_notify(struct notifier_block *nb, unsigned long val,
 static struct notifier_block smmu_attach_nb = {
 	.notifier_call = smmu_attach_notify,
 };
+#endif
 
 void cix_pcie_io_space_init(void)
 {
@@ -179,7 +181,14 @@ int cix_pcie_quirks_init(void)
 		return -ENOMEM;
 	}
 
-	return register_smmu_attach_notifier(&smmu_attach_nb);
+#ifdef CONFIG_ARM_SMMU_V3
+	if (IS_ENABLED(CONFIG_ARM_SMMU_V3))
+		return register_smmu_attach_notifier(&smmu_attach_nb);
+	else
+		pr_warn("ARM SMMU v3 not enabled; skipping SMMU attach notifier\n");
+#endif
+
+	return 0;
 }
 
 #ifdef CIX_GOP_RESOURCE_QUIRK

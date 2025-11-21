@@ -10,6 +10,7 @@
 #include <linux/pci.h>
 #include "arm-smmu-v3.h"
 #include "arm-smmu-v3-walk.h"
+#include "arm-smmu-v3-debug.h"
 
 #define smmu_print printk
 #define NAME_BUF_LEN 64
@@ -166,7 +167,7 @@ static const struct file_operations smmu_dump_fops = {
 	.read = smmu_walk_read,
 };
 
-static int __init smmu_debug_init(void)
+int arm_smmu_v3_debug_init(void)
 {
 	struct dentry *dir;
 
@@ -182,8 +183,3 @@ static int __init smmu_debug_init(void)
 
 	return 0;
 }
-module_init(smmu_debug_init)
-
-MODULE_AUTHOR("Zichar Zhang <zichar.zhang@cixtech.com>");
-MODULE_DESCRIPTION("SMMU INFO DEBUG");
-MODULE_LICENSE("GPL v2");

@@ -29,5 +29,6 @@ struct smmu_master_handle {
 int smmu_master_walk_register(struct arm_smmu_master *master);
 void smmu_master_walk_unregister(struct arm_smmu_master *master);
 int smmu_master_walk(struct smmu_master_handle *mhdl);
+int arm_smmu_v3_walk_init(void);
 
 #endif /* __ARM_SMMU_V3_WALK_H__ */

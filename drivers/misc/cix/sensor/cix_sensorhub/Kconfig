@@ -1,8 +1,7 @@
 config CIX_KERNEL_SENSORHUB
-	tristate "CUSTOM KERNEL SENSORHUB support"
+	tristate "CIX SensorHub support"
+	depends on CIX_SENSORHUB
 	help
-	  Kernel space sensor hub driver.
-	  Define project used all sensor hub sensors.
-	  The value is combination of sensor hub driver (get data ...etc)
-	  and sensor hub framework driver (transmit shf info).
+	  Platform driver for the CIX sensorhub hardware.
+	  Interfaces with the CIX sensorhub core framework.
 

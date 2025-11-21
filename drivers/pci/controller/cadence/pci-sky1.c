@@ -102,6 +102,8 @@
 
 #define PCIE_RESET_CONFIG_WAIT_MS	100
 
+#define SKY1_PCIE_INVALID_READ 0xFFFFFFFF
+
 static DEFINE_MUTEX(sky1_init_mutex);
 static DEFINE_MUTEX(sky1_x211_mutex);
 static atomic_t phy_rst_deassert_cnt = ATOMIC_INIT(0);
@@ -1778,7 +1780,9 @@ static u32 sky1_phy_readl_phy_status(struct sky1_pcie *pcie, u32 reg)
 		base = pcie->rcsu_base + APP_OFFSET_STATUS_REG + STRAP_REG(40);
 		break;
 	default:
-		break;
+		dev_err(pcie->dev, "%s: unknown PCIe ID %u\n",
+			__func__, pcie->desc->id);
+		return SKY1_PCIE_INVALID_READ;
 	}
 
 	return readl_relaxed(base + reg);
@@ -1929,6 +1933,7 @@ int devm_acpi_pci_bridge_init(struct device *dev,
 	res = devm_pci_create_bus_range(dev);
 	if (!res) {
 		dev_err(dev, "acpi pci create bus range fail\n");
+		ret = -ENOMEM;
 		goto bus_err;
 	}
 

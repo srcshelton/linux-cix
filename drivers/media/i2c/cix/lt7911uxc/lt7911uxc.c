@@ -1234,6 +1234,9 @@ static int lt7911uxc_probe(struct i2c_client *client)
 	lt7911uxc->tranning_enable = 0;
 	lt7911uxc->active_num = 1;
 	lt7911uxc->mbus_fmt_code = LT7911UXC_MEDIA_BUS_FMT;
+
+	sd = &lt7911uxc->sd;
+
 	ret = lt7911uxc_parse(lt7911uxc);
 	if (ret) {
 		v4l2_err(sd, "lt7911uxc_parse failed! err:%d\n", ret);
@@ -1260,7 +1263,6 @@ static int lt7911uxc_probe(struct i2c_client *client)
 	if (ret)
 		return ret;
 
-	sd = &lt7911uxc->sd;
 	snprintf(sd->name, sizeof(sd->name), "%s", CIX_LT7911UXC_SUBDEV_NAME);
 
 	v4l2_i2c_subdev_init(sd, client, &lt7911uxc_ops);

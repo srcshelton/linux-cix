@@ -1559,14 +1559,18 @@ extern void acpi_device_notify_remove(struct device *dev);
 				Device Performance States
   -------------------------------------------------------------------------- */
 
+#if IS_BUILTIN(CONFIG_ACPI)
 int acpi_dev_perf_attach(struct device *dev);
 int acpi_dev_perf_detach(struct device *dev);
+#endif
 
 #else
 static inline void acpi_device_notify(struct device *dev) { }
 static inline void acpi_device_notify_remove(struct device *dev) { }
+#if IS_BUILTIN(CONFIG_ACPI)
 static int acpi_dev_perf_attach(struct device *dev) { return 0; }
 static int acpi_dev_perf_detach(struct device *dev) { return 0; }
+#endif
 #endif
 
 #endif	/*_LINUX_ACPI_H*/

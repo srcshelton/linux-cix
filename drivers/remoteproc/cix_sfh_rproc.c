@@ -195,7 +195,7 @@ enum cix_sfh_mbox_messages {
 };
 
 #ifdef CONFIG_HIBERNATION
-static struct hibernate_rmem_ops cix_rproc_reserve_ops[2] = {NULL}; //for vring0 and vring1
+static struct hibernate_rmem_ops cix_rproc_reserve_ops[2]; //for vring0 and vring1
 
 static void cix_rproc_hibernate_mem_reserve(void)
 {

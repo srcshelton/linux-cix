@@ -452,13 +452,13 @@ static int cdnsp_sky1_drd_init(struct cdnsp_sky1 *data)
 
 static int cdns_sky1_platform_reset(struct device *dev)
 {
-	int ret;
 	struct device *parent = dev->parent;
 	struct cdnsp_sky1 *data = dev_get_drvdata(parent);
 
-	if (data)
-		ret = cdnsp_sky1_drd_init(data);
-	return ret;
+	if (!data)
+		return -ENODEV;
+
+	return cdnsp_sky1_drd_init(data);
 }
 
 static int cdnsp_sky1_u3_disable(struct cdnsp_sky1 *data)
@@ -471,13 +471,13 @@ static int cdnsp_sky1_u3_disable(struct cdnsp_sky1 *data)
 
 static int cdns_sky1_platform_u3_disable(struct device *dev)
 {
-	int ret;
 	struct device *parent = dev->parent;
 	struct cdnsp_sky1 *data = dev_get_drvdata(parent);
 
-	if (data)
-		ret = cdnsp_sky1_u3_disable(data);
-	return ret;
+	if (!data)
+		return -ENODEV;
+
+	return cdnsp_sky1_u3_disable(data);
 }
 
 static void *sky1_of_get_addr_by_name(struct device_node *parent, char *name)

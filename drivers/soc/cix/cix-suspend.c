@@ -62,6 +62,7 @@ void suspend_warning_clear(void)
 }
 EXPORT_SYMBOL_GPL(suspend_warning_clear);
 
+#ifdef CONFIG_HISYSEVENT
 bool suspend_warning_check(void)
 {
 	struct hiview_hisysevent *event = NULL;
@@ -90,6 +91,11 @@ bool suspend_warning_check(void)
 
 	return was_set;
 }
+#else
+bool suspend_warning_check(void) {
+	return false;
+}
+#endif
 EXPORT_SYMBOL_GPL(suspend_warning_check);
 
 static int __init suspend_debug_init(void)

@@ -117,7 +117,7 @@ static int dai_set_sysclk(struct snd_pcm_substream *substream,
 	struct dai_link_info *link_info =
 		(struct dai_link_info *)((priv->link_info + rtd->num));
 	struct snd_soc_dai *codec_dai;
-	unsigned int mclk, mclk_div, mclk_parent_rate, sample_rate;
+	unsigned int mclk = 0, mclk_div = 0, mclk_parent_rate = 0, sample_rate;
 	struct clk *mclk_parent;
 	int ret, i;
 	u32 val;
@@ -152,6 +152,10 @@ static int dai_set_sysclk(struct snd_pcm_substream *substream,
 		} else if (sample_rate == 192000) {
 			mclk_fs = 128;
 			mclk_div = 0;
+		} else {
+			dev_err(rtd->dev, "unsupported multiple-of-8 kHz sample rate: %u\n",
+				sample_rate);
+			return -EINVAL;
 		}
 
 		mclk_parent = link_info->clks[AUDIO_CLK0];
@@ -171,6 +175,10 @@ static int dai_set_sysclk(struct snd_pcm_substream *substream,
 		} else if (sample_rate == 176400) {
 			mclk_fs = 256;
 			mclk_div = 0;
+		} else {
+			dev_err(rtd->dev, "unsupported multiple-of-11.025 kHz sample rate: %u\n",
+				sample_rate);
+			return -EINVAL;
 		}
 
 		mclk_parent = link_info->clks[AUDIO_CLK2];

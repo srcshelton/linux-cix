@@ -452,6 +452,7 @@ static int axi_prop_set(void *data, u64 val)
     switch (linlon_aeu_axi_prop_valid_set(prop, val)) {
     case 0:
         linlon_aeu_commit_axi_prop(prop->hw_dev, prop);
+	fallthrough;
     case 1:
         break;
     default:

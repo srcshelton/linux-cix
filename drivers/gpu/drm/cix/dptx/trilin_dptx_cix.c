@@ -216,7 +216,7 @@ static int trilin_dptx_cix_probe(struct platform_device *pdev)
 #else
 	struct device_node *ports_node, *port_node;
 	int i = 0, ret = 0, j = 0;
-	struct device_node *remote_node;
+	//struct device_node *remote_node;
 	struct platform_device *dpu_pdev;
 	struct device *master_dpu_dev_0 = NULL;
 	struct device *master_dpu_dev_1 = NULL;

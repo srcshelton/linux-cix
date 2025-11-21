@@ -157,6 +157,7 @@ void cdns_pcie_set_outbound_region(struct cdns_pcie *pcie, u8 busnr, u8 fn,
 		 * need to set the function number.
 		 */
 		desc1 |= CDNS_PCIE_AT_OB_REGION_DESC1_DEVFN(fn);
+		ctrl0 = 0;
 	}
 
 	cdns_pcie_writel(pcie, CDNS_PCIE_AT_OB_REGION_DESC0(r), desc0);
@@ -192,6 +193,7 @@ void cdns_pcie_set_outbound_region_for_normal_msg(struct cdns_pcie *pcie,
 			CDNS_PCIE_AT_OB_REGION_CTRL0_SUPPLY_DEV_FN;
 	} else {
 		desc1 |= CDNS_PCIE_AT_OB_REGION_DESC1_DEVFN(fn);
+		ctrl0 = 0;
 	}
 
 	/* Set the CPU address */

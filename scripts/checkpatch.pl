@@ -1377,7 +1377,8 @@ sub top_of_kernel_tree {
 	my ($root) = @_;
 
 	my @tree_check = (
-		"COPYING", "CREDITS", "Kbuild", "MAINTAINERS", "Makefile",
+		#"COPYING", "CREDITS",
+		"Kbuild", "MAINTAINERS", "Makefile",
 		"README", "Documentation", "arch", "include", "drivers",
 		"fs", "init", "ipc", "kernel", "lib", "scripts",
 	);

@@ -823,6 +823,7 @@ static long ispmem_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	return res;
 }
 
+#if 0 /* unused */
 #ifdef CONFIG_ARENA_FPGA_PLATFORM
 #define DISP_DDR_BUFFER (1920 * 1080)
 #define DISP_BUFFER_NUM (12)
@@ -866,6 +867,7 @@ exit:
 
 	return res;
 }
+#endif
 #endif
 
 static int ispmem_release(struct inode *node, struct file *file)

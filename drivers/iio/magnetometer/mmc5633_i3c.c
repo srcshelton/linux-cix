@@ -69,8 +69,8 @@ static int mmc5633_i3c_probe(struct i3c_device *i3cdev)
 		.reg_bits = 8,
 		.val_bits = 8,
 	};
-	const struct i3c_device_id *id = i3c_device_match_id(i3cdev,
-							    mmc5633_i3c_ids);
+	//const struct i3c_device_id *id = i3c_device_match_id(i3cdev,
+	//						    mmc5633_i3c_ids);
 	struct regmap *regmap;
 	regmap = devm_regmap_init_i3c(i3cdev, &mmc5633_i3c_regmap_config);
 	if (IS_ERR(regmap)) {

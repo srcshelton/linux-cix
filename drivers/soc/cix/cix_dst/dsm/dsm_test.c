@@ -24,9 +24,11 @@
 #include <linux/soc/cix/dsm_pub.h>
 #include "dsm_core.h"
 
+#ifndef __KERNEL__
 #define dsm_log_info(x...) DST_PN(x)
 #define dsm_log_err(x...) DST_ERR(x)
 #define dsm_log_debug(x...) DST_DBG(x)
+#endif
 
 #define DSM_TEST_BUFF 16
 #define DSM_TEST_DEVICE_SUM 5

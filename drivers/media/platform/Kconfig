@@ -100,6 +100,7 @@ config CAMERA_ARMCB
 
 config ARENA_FPGA_PLATFORM
         tristate "Arena FPGA hardware platform"
+	depends on BROKEN
         default n
         help
           Use arena fpga hw platform

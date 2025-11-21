@@ -3,16 +3,20 @@
  * Copyright (C) 2022-2023 Huawei Technologies Co., Ltd. All rights reserved.
  */
 
+#include <linux/init.h>
+#include <linux/module.h>
 #include <dfx/hiview_hisysevent.h>
 
 #ifdef CONFIG_HISYSEVENT
 
 #include <linux/cred.h>
 #include <linux/ctype.h>
+#include <linux/errno.h>
 #include <linux/fs.h>
 #include <linux/module.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
+#include <linux/stddef.h>
 #include <linux/string.h>
 #include <linux/time.h>
 #include <linux/types.h>
@@ -137,4 +141,34 @@ event_wrote_err:
 }
 EXPORT_SYMBOL_GPL(hisysevent_write);
 
+#else /* CONFIG_HISYSEVENT */
+
+struct hiview_hisysevent *
+hisysevent_create(const char *domain, const char *name, enum hisysevent_type type)
+{
+	return NULL;
+}
+
+void hisysevent_destroy(struct hiview_hisysevent **event)
+{}
+
+int
+hisysevent_put_integer(struct hiview_hisysevent *event, const char *key, long long value)
+{
+	return -EOPNOTSUPP;
+}
+
+int
+hisysevent_put_string(struct hiview_hisysevent *event, const char *key, const char *value)
+{
+	return -EOPNOTSUPP;
+}
+
+int hisysevent_write(struct hiview_hisysevent *event)
+{
+	return -EOPNOTSUPP;
+}
+
 #endif /* CONFIG_HISYSEVENT */
+
+MODULE_LICENSE("GPL v2");

@@ -327,6 +327,7 @@ static int trilin_dp_update_vs_emph_phy_config(struct trilin_dp *dp)
 			 DP_TRAIN_PRE_EMPHASIS_SHIFT;
 	opts.dp.set_voltages = 1;
 
+	ret = -EOPNOTSUPP;
 	if (phy->phy_ops)
 		ret = phy->phy_ops->configure(dp, &opts);
 	return ret;

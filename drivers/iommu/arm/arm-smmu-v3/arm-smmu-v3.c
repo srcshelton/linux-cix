@@ -27,15 +27,12 @@
 #include <linux/pci-ats.h>
 #include <linux/platform_device.h>
 
-#ifdef CONFIG_ARCH_CIX
-#include <linux/libfdt.h>
-#include <linux/of_fdt.h>
-#endif
-
 #include "arm-smmu-v3.h"
 #include "../../dma-iommu.h"
 #include "../../iommu-sva.h"
 #include "arm-smmu-v3-walk.h"
+#include "arm-smmu-v3-debug.h"
+#include "arm-smmu-v3-dump.h"
 
 static bool disable_bypass = true;
 module_param(disable_bypass, bool, 0444);
@@ -1688,10 +1685,10 @@ static irqreturn_t arm_smmu_evtq_thread(int irq, void *dev)
 			if (!ret || !__ratelimit(&rs))
 				continue;
 
-			dev_info(smmu->dev, "event 0x%02x received:\n", id);
+			dev_dbg(smmu->dev, "event 0x%02x received:\n", id);
 			for (i = 0; i < ARRAY_SIZE(evt); ++i)
-				dev_info(smmu->dev, "\t0x%016llx\n",
-					 (unsigned long long)evt[i]);
+				dev_dbg(smmu->dev, "\t0x%016llx\n",
+					(unsigned long long)evt[i]);
 
 			cond_resched();
 		}
@@ -3989,37 +3986,40 @@ static void arm_smmu_iort_rmr_install_bypass_ste(struct arm_smmu_device *smmu)
 
 static void arm_smmu_dt_rmr_install_bypass_ste(struct arm_smmu_device *smmu)
 {
-	int node, child;
-	const void *fdt = initial_boot_params;
+	struct device_node *node;
+	struct device_node *child;
+	const __be32 *maps;
+	u32 phandle;
+	struct device_node *np;
+	int index;
+	struct of_phandle_args args;
 
-	if (!fdt)
+	node = of_find_node_by_path("/reserved-memory");
+	if (!node)
 		return;
 
-	node = fdt_path_offset(fdt, "/reserved-memory");
-	if (node < 0)
-		return;
-
-	fdt_for_each_subnode(child, fdt, node) {
-		int index = 0;
-		struct of_phandle_args args;
-		struct device_node *np;
-		const __be32 *maps;
-		u32 phandle;
-
-		maps = fdt_getprop(fdt, child, "iommu-addresses", NULL);
+	for_each_child_of_node(node, child) {
+		maps = of_get_property(child, "iommu-addresses", NULL);
 		if (!maps)
 			continue;
 
 		phandle = be32_to_cpup(maps);
 		np = of_find_node_by_phandle(phandle);
+		if (!np)
+			continue;
 
+		index = 0;
 		if (!of_parse_phandle_with_args(np,
 				"iommus", "#iommu-cells", index, &args)) {
 			if (smmu->dev->of_node == args.np && args.args_count > 0)
 				arm_smmu_set_ste(smmu, args.args[0], true);
 			index++;
 		}
+		/* of_find_node_by_phandle increments refcount; drop it */
+		of_node_put(np);
 	}
+	/* drop refcount for reserved node */
+	of_node_put(node);
 }
 
 static void arm_smmu_install_bypass_ste(struct arm_smmu_device *smmu)
@@ -4254,8 +4254,49 @@ static struct platform_driver arm_smmu_driver = {
 	.remove_new = arm_smmu_device_remove,
 	.shutdown = arm_smmu_device_shutdown,
 };
-module_driver(arm_smmu_driver, platform_driver_register,
-	      arm_smmu_driver_unregister);
+
+static int __init arm_smmu_v3_init(void)
+{
+	int ret;
+
+#ifdef CONFIG_ARM_SMMU_V3_WALK
+	ret = arm_smmu_v3_walk_init();
+	if (ret) {
+		pr_err("SMMU-v3 walk init failed: %d\n", ret);
+		return ret;
+	}
+#endif
+
+#ifdef CONFIG_ARM_SMMU_V3_DEBUG
+	ret = arm_smmu_v3_debug_init();
+	if (ret) {
+		pr_err("SMMU-v3 debug init failed: %d\n", ret);
+		return ret;
+	}
+#endif
+
+#ifdef CONFIG_ARM_SMMU_V3_DUMP
+	ret = arm_smmu_v3_dump_init();
+	if (ret) {
+		pr_err("SMMU-v3 dump init failed: %d\n", ret);
+		return ret;
+	}
+#endif
+
+	ret = platform_driver_register(&arm_smmu_driver);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static void __exit arm_smmu_v3_exit(void)
+{
+	arm_smmu_driver_unregister(&arm_smmu_driver);
+}
+
+module_init(arm_smmu_v3_init);
+module_exit(arm_smmu_v3_exit);
 
 MODULE_DESCRIPTION("IOMMU API for ARM architected SMMUv3 implementations");
 MODULE_AUTHOR("Will Deacon <will@kernel.org>");

@@ -38,8 +38,8 @@ static int armcb_subdev_register_nodes_async(struct v4l2_subdev *sd)
 {
 	int res = 0;
 
-	if (WARN_ON(!sd) || WARN_ON(!sd->name)) {
-		LOG(LOG_ERR, "Invalid input v4l2_subdev is NULL");
+	if (WARN_ON(!sd) || WARN_ON(!sd->name[0])) {
+		LOG(LOG_ERR, "Invalid input v4l2_subdev is NULL or has no name");
 		return -EINVAL;
 	}
 

@@ -1,5 +1,6 @@
 config CIX_HF_TEST_CASE
 	bool "high frequency manager test demo for Cix package"
+	depends on BROKEN
 	default n
 	help
 	  It support high frequency manager test demo.

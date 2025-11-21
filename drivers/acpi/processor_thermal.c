@@ -620,3 +620,4 @@ void acpi_processor_thermal_exit(struct acpi_processor *pr,
 		pr->cdev = NULL;
 	}
 }
+EXPORT_SYMBOL_GPL(acpi_processor_thermal_exit);

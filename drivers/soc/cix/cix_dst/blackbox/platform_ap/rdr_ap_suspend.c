@@ -79,10 +79,12 @@ static char *suspend_step_name(enum suspend_stat_step step)
 
 void ap_suspend_dump(u32 modid, u32 etype)
 {
+#if IS_ENABLED(CONFIG_PM_SLEEP)
 	struct wakeup_source *ws;
-	struct wakeup *wake_info;
 	unsigned long flags;
 	int len = 0;
+#endif
+	struct wakeup *wake_info;
 
 	if (modid != MODID_AP_SUSPEND_DEVICE_FAIL)
 		return;
@@ -91,11 +93,16 @@ void ap_suspend_dump(u32 modid, u32 etype)
 		return;
 
 	/*save suspend state*/
+#if IS_ENABLED(CONFIG_PM_SLEEP)
 	memcpy(&g_suspend_info->stats, &suspend_stats,
 	       sizeof(struct suspend_stats));
+#else
+	memcpy(&g_suspend_info->stats, 0, sizeof(struct suspend_stats));
+#endif
 
 	/*save wake up info*/
 	wake_info = &g_suspend_info->wake_info;
+#if IS_ENABLED(CONFIG_PM_SLEEP)
 	for_each_wakeup_source(ws) {
 		spin_lock_irqsave(&ws->lock, flags);
 		len = MIN(MAX_WAKEUP_NAME_LEN - 1, strlen(ws->name));
@@ -119,6 +126,9 @@ void ap_suspend_dump(u32 modid, u32 etype)
 		spin_unlock_irqrestore(&ws->lock, flags);
 		wake_info->num++;
 	}
+#else
+	wake_info->num = 0;
+#endif
 
 	g_suspend_info->magic = SUSPEND_MAGIC;
 }

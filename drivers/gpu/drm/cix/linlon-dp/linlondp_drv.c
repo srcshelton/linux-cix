@@ -25,7 +25,7 @@ struct linlondp_drv {
 	struct linlondp_kms_dev *kms;
 };
 
-struct linlondp_dev *dev_to_mdev(struct device *dev)
+struct linlondp_dev *linlondp_dev_to_mdev(struct device *dev)
 {
 	struct linlondp_drv *mdrv = dev_get_drvdata(dev);
 
@@ -104,6 +104,7 @@ static const struct component_master_ops linlondp_master_ops = {
 	.unbind = linlondp_unbind,
 };
 
+#if !IS_ENABLED(CONFIG_DRM_CIX_COMPONENT_BIND_BYPASSED)
 static int compare_of(struct device *dev, void *data)
 {
 	int ret;
@@ -156,10 +157,17 @@ static void linlondp_add_slave(struct device *master,
 		of_node_put(remote);
 	}
 }
+#endif
 
 static int linlondp_platform_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
+#if IS_ENABLED(CONFIG_DRM_CIX_COMPONENT_BIND_BYPASSED)
+
+	pr_info("%s enter. dev.name=%s\n", __func__, dev_name(dev));
+	pr_info("linlondp enable fb is %d", enable_fb);
+	return linlondp_bind(dev);
+#else
 	struct component_match *match = NULL;
 	struct fwnode_handle *acpi_child;
 	struct device_node *of_child;
@@ -167,7 +175,6 @@ static int linlondp_platform_probe(struct platform_device *pdev)
 
 	pr_info("%s enter. dev.name=%s\n", __func__, dev_name(dev));
 	pr_info("linlondp enable fb is %d", enable_fb);
-#if !IS_ENABLED(CONFIG_DRM_CIX_COMPONENT_BIND_BYPASSED)
 	if (has_acpi_companion(dev)) {
 		pr_info("%s via acpi.\n", __func__);
 		fwnode_for_each_child_node(dev->fwnode, acpi_child) {
@@ -200,8 +207,6 @@ static int linlondp_platform_probe(struct platform_device *pdev)
 	pr_info("%s end. match=%p\n", __func__, match);
 	return component_master_add_with_match(dev, &linlondp_master_ops,
 					       match);
-#else
-	return linlondp_bind(dev);
 #endif
 }
 

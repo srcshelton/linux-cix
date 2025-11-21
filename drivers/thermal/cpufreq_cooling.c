@@ -179,6 +179,7 @@ static u32 get_load(struct cpufreq_cooling_device *cpufreq_cdev, int cpu,
 }
 #endif /* CONFIG_SMP */
 
+#ifndef CONFIG_CIX_THERMAL
 /**
  * get_dynamic_power() - calculate the dynamic power
  * @cpufreq_cdev:	&cpufreq_cooling_device for this cdev
@@ -195,6 +196,7 @@ static u32 get_dynamic_power(struct cpufreq_cooling_device *cpufreq_cdev,
 	raw_cpu_power = cpu_freq_to_power(cpufreq_cdev, freq);
 	return (raw_cpu_power * cpufreq_cdev->last_load) / 100;
 }
+#endif
 
 /**
  * cpufreq_get_requested_power() - get the current power
@@ -307,7 +309,10 @@ static int cpufreq_power2state(struct thermal_cooling_device *cdev,
 			       u32 power, unsigned long *state)
 {
 	unsigned int target_freq;
-	u32 last_load, normalised_power;
+#ifndef CONFIG_CIX_THERMAL
+	u32 last_load;
+#endif
+	u32 normalised_power;
 	struct cpufreq_cooling_device *cpufreq_cdev = cdev->devdata;
 	struct cpufreq_policy *policy = cpufreq_cdev->policy;
 

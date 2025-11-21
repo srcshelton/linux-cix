@@ -426,7 +426,7 @@ static void __exit i3cdev_exit(void)
 
 MODULE_AUTHOR("Vitor Soares <Vitor.Soares@synopsys.com>");
 MODULE_DESCRIPTION("I3C /dev entries driver");
-MODULE_LICENSE("GPLv2");
+MODULE_LICENSE("GPL v2");
 
 module_init(i3cdev_init);
 module_exit(i3cdev_exit);

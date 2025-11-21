@@ -272,6 +272,7 @@ void cix_nanohub_ipi_handler(int id,
 	else
 		pr_err("IPI_SENSOR cannot find cmd!\n");
 }
+EXPORT_SYMBOL(cix_nanohub_ipi_handler);
 
 static void cix_nanohub_get_sensor_info(void)
 {

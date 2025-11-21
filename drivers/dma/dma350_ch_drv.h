@@ -69,36 +69,34 @@ extern "C" {
 	writel((readl(addr) & ~MSK) | (((uint32_t)(VAL) << POS) & MSK), addr)
 
 /* ARM DMA350 DMA Channel status bits */
-enum dma350_ch_stat_t {
-	DMA350_CH_STAT_DONE = DMA350_CH_STATUS_STAT_DONE,
-	DMA350_CH_STAT_ERR = DMA350_CH_STATUS_STAT_ERR,
-	DMA350_CH_STAT_DISABLED = DMA350_CH_STATUS_STAT_DISABLED,
-	DMA350_CH_STAT_STOPPED = DMA350_CH_STATUS_STAT_STOPPED,
-	DMA350_CH_STAT_SRCTRIGINWAIT = DMA350_CH_STATUS_STAT_SRCTRIGINWAIT,
-	DMA350_CH_STAT_DESTRIGINWAIT = DMA350_CH_STATUS_STAT_DESTRIGINWAIT,
-	DMA350_CH_STAT_TRIGOUTACKWAIT = DMA350_CH_STATUS_STAT_TRIGOUTACKWAIT,
-	DMA350_CH_STAT_ALL =
-		DMA350_CH_STATUS_STAT_DONE | DMA350_CH_STATUS_STAT_ERR |
-		DMA350_CH_STATUS_STAT_DISABLED | DMA350_CH_STATUS_STAT_STOPPED |
-		DMA350_CH_STATUS_STAT_SRCTRIGINWAIT | DMA350_CH_STATUS_STAT_DESTRIGINWAIT |
-		DMA350_CH_STATUS_STAT_TRIGOUTACKWAIT
-};
+typedef uint32_t dma350_ch_stat_t;
+#define DMA350_CH_STAT_DONE             DMA350_CH_STATUS_STAT_DONE
+#define DMA350_CH_STAT_ERR              DMA350_CH_STATUS_STAT_ERR
+#define DMA350_CH_STAT_DISABLED         DMA350_CH_STATUS_STAT_DISABLED
+#define DMA350_CH_STAT_STOPPED          DMA350_CH_STATUS_STAT_STOPPED
+#define DMA350_CH_STAT_SRCTRIGINWAIT    DMA350_CH_STATUS_STAT_SRCTRIGINWAIT
+#define DMA350_CH_STAT_DESTRIGINWAIT    DMA350_CH_STATUS_STAT_DESTRIGINWAIT
+#define DMA350_CH_STAT_TRIGOUTACKWAIT   DMA350_CH_STATUS_STAT_TRIGOUTACKWAIT
+#define DMA350_CH_STAT_ALL \
+	(DMA350_CH_STATUS_STAT_DONE | DMA350_CH_STATUS_STAT_ERR | \
+	DMA350_CH_STATUS_STAT_DISABLED | DMA350_CH_STATUS_STAT_STOPPED | \
+	DMA350_CH_STATUS_STAT_SRCTRIGINWAIT | DMA350_CH_STATUS_STAT_DESTRIGINWAIT | \
+	DMA350_CH_STATUS_STAT_TRIGOUTACKWAIT)
 
 /* ARM DMA350 DMA Channel interrupt bits */
-enum dma350_ch_intr_t {
-	DMA350_CH_INTREN_DONE = DMA350_CH_INTREN_INTREN_DONE,
-	DMA350_CH_INTREN_ERR = DMA350_CH_INTREN_INTREN_ERR,
-	DMA350_CH_INTREN_DISABLED = DMA350_CH_INTREN_INTREN_DISABLED,
-	DMA350_CH_INTREN_STOPPED = DMA350_CH_INTREN_INTREN_STOPPED,
-	DMA350_CH_INTREN_SRCTRIGINWAIT = DMA350_CH_INTREN_INTREN_SRCTRIGINWAIT,
-	DMA350_CH_INTREN_DESTRIGINWAIT = DMA350_CH_INTREN_INTREN_DESTRIGINWAIT,
-	DMA350_CH_INTREN_TRIGOUTACKWAIT = DMA350_CH_INTREN_INTREN_TRIGOUTACKWAIT,
-	DMA350_CH_INTREN_ALL =
-		DMA350_CH_INTREN_INTREN_DONE | DMA350_CH_INTREN_INTREN_ERR |
-		DMA350_CH_INTREN_INTREN_DISABLED | DMA350_CH_INTREN_INTREN_STOPPED |
-		DMA350_CH_INTREN_INTREN_SRCTRIGINWAIT |
-		DMA350_CH_INTREN_INTREN_DESTRIGINWAIT | DMA350_CH_INTREN_INTREN_TRIGOUTACKWAIT
-};
+typedef uint32_t dma350_ch_intr_t;
+#define DMA350_CH_INTREN_DONE           DMA350_CH_INTREN_INTREN_DONE
+#define DMA350_CH_INTREN_ERR            DMA350_CH_INTREN_INTREN_ERR
+#define DMA350_CH_INTREN_DISABLED       DMA350_CH_INTREN_INTREN_DISABLED
+#define DMA350_CH_INTREN_STOPPED        DMA350_CH_INTREN_INTREN_STOPPED
+#define DMA350_CH_INTREN_SRCTRIGINWAIT  DMA350_CH_INTREN_INTREN_SRCTRIGINWAIT
+#define DMA350_CH_INTREN_DESTRIGINWAIT  DMA350_CH_INTREN_INTREN_DESTRIGINWAIT
+#define DMA350_CH_INTREN_TRIGOUTACKWAIT DMA350_CH_INTREN_INTREN_TRIGOUTACKWAIT
+#define DMA350_CH_INTREN_ALL \
+	(DMA350_CH_INTREN_INTREN_DONE | DMA350_CH_INTREN_INTREN_ERR | \
+	DMA350_CH_INTREN_INTREN_DISABLED | DMA350_CH_INTREN_INTREN_STOPPED | \
+	DMA350_CH_INTREN_INTREN_SRCTRIGINWAIT | \
+	DMA350_CH_INTREN_INTREN_DESTRIGINWAIT | DMA350_CH_INTREN_INTREN_TRIGOUTACKWAIT)
 
 
 /* ARM DMA350 DMA Channel XTYPE */
@@ -435,7 +433,7 @@ void dma350_ch_cmd(void __iomem *addr, uint32_t cmd);
  * \note This function doesn't check if dev is NULL or if it has been init.
  */
 static inline
-void dma350_ch_enable_intr(void __iomem *addr, enum dma350_ch_intr_t intr);
+void dma350_ch_enable_intr(void __iomem *addr, dma350_ch_intr_t intr);
 
 /**
  * \brief Disables Interrupt for DMA350 DMA channel
@@ -448,7 +446,7 @@ void dma350_ch_enable_intr(void __iomem *addr, enum dma350_ch_intr_t intr);
  * \note This function doesn't check if dev is NULL or if it has been init.
  */
 static inline
-void dma350_ch_disable_intr(void __iomem *addr, enum dma350_ch_intr_t intr);
+void dma350_ch_disable_intr(void __iomem *addr, dma350_ch_intr_t intr);
 /**
  * \brief Sets Source Trigger Input Select
  *
@@ -631,7 +629,7 @@ void dma350_cmdlink_set_regclear(struct dma350_cmdlink_gencfg_t *cmdlink_cfg);
  */
 static inline
 void dma350_cmdlink_enable_intr(struct dma350_cmdlink_gencfg_t *cmdlink_cfg,
-	enum dma350_ch_intr_t intr);
+	dma350_ch_intr_t intr);
 
 /**
  * \brief Disables Interrupt for DMA350 DMA channel in the command structure
@@ -644,7 +642,7 @@ void dma350_cmdlink_enable_intr(struct dma350_cmdlink_gencfg_t *cmdlink_cfg,
  */
 static inline
 void dma350_cmdlink_disable_intr(struct dma350_cmdlink_gencfg_t *cmdlink_cfg,
-	enum dma350_ch_intr_t intr);
+	dma350_ch_intr_t intr);
 
 /**
  * \brief Sets Transfer Enitity Size in the command structure
@@ -1514,7 +1512,7 @@ void dma350_cmdlink_set_regclear(struct dma350_cmdlink_gencfg_t *cmdlink_cfg)
 
 static inline
 void dma350_cmdlink_enable_intr(struct dma350_cmdlink_gencfg_t *cmdlink_cfg,
-				enum dma350_ch_intr_t intr)
+				dma350_ch_intr_t intr)
 {
 	cmdlink_cfg->header |= DMA350_CMDLINK_INTREN_SET;
 	cmdlink_cfg->cfg.intren |= intr;
@@ -1522,7 +1520,7 @@ void dma350_cmdlink_enable_intr(struct dma350_cmdlink_gencfg_t *cmdlink_cfg,
 
 static inline
 void dma350_cmdlink_disable_intr(struct dma350_cmdlink_gencfg_t *cmdlink_cfg,
-				enum dma350_ch_intr_t intr)
+				dma350_ch_intr_t intr)
 {
 	cmdlink_cfg->header |= DMA350_CMDLINK_INTREN_SET;
 	cmdlink_cfg->cfg.intren &= (~intr);
@@ -1995,13 +1993,13 @@ void dma350_ch_cmd(void __iomem *addr, uint32_t cmd)
 }
 
 static inline
-void dma350_ch_enable_intr(void __iomem *addr, uint32_t intr)
+void dma350_ch_enable_intr(void __iomem *addr, dma350_ch_intr_t intr)
 {
 	writel(readl(addr) | intr, addr);
 }
 
 static inline
-void dma350_ch_disable_intr(void __iomem *addr, uint32_t intr)
+void dma350_ch_disable_intr(void __iomem *addr, dma350_ch_intr_t intr)
 {
 	writel(readl(addr) & (~intr), addr);
 }

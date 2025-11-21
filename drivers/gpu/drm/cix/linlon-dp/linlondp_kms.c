@@ -387,8 +387,10 @@ struct linlondp_kms_dev *linlondp_kms_attach(struct linlondp_dev *mdev)
 #endif
 	return kms;
 
+#if !IS_ENABLED(CONFIG_DRM_CIX_COMPONENT_BIND_BYPASSED)
 free_interrupts:
 	drm_kms_helper_poll_fini(drm);
+#endif
 free_component_binding:
 	component_unbind_all(mdev->dev, drm);
 cleanup_mode_config:

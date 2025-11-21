@@ -1089,7 +1089,7 @@ static int csi_dma_cap_streamon(struct file *file, void *priv,
 	}
 
 	src_sd = dma_cap->source_subdev;
-	v4l2_subdev_call(src_sd, core, s_power, 1);
+	ret = v4l2_subdev_call(src_sd, core, s_power, 1);
 	if (ret) {
 		dev_err(dev, "Call subdev s_power fail!\n");
 		mutex_unlock(&dma_cap->lock);

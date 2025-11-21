@@ -358,3 +358,4 @@ int hisysevent_builder_build(struct hisysevent_builder *builder,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(hisysevent_builder_build);
+MODULE_LICENSE("GPL v2");

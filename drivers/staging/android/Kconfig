@@ -3,7 +3,7 @@ menu "Android"
 
 config ASHMEM
 	bool "Enable the Anonymous Shared Memory Subsystem"
-	depends on SHMEM
+	depends on SHMEM && EXPERIMENTAL
 	help
 	  The ashmem subsystem is a new shared memory allocator, similar to
 	  POSIX SHM but with different behavior and sporting a simpler

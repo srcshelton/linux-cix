@@ -138,7 +138,7 @@ static int cdns_gpio_irq_set_type(struct irq_data *d, unsigned int type)
 	if (type == IRQ_TYPE_EDGE_RISING) {
 		int_value |= mask;
 	} else if (type == IRQ_TYPE_EDGE_FALLING) {
-		int_value = int_value;
+		int_value &= ~mask;
 	} else if (type == IRQ_TYPE_EDGE_BOTH) {
 		int_oany |= mask;
 	} else if (type == IRQ_TYPE_LEVEL_HIGH) {

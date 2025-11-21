@@ -157,7 +157,7 @@ static void smmu_dump_finish(void *data, int status)
 		head->status |= SMMU_DUMP_VALID;
 }
 
-int smmu_master_dump(struct smmu_master_dump_info *info)
+static int smmu_master_dump(struct smmu_master_dump_info *info)
 {
 	struct smmu_dump_head *head;
 	struct smmu_master_handle hdl;
@@ -181,7 +181,6 @@ int smmu_master_dump(struct smmu_master_dump_info *info)
 
 	return smmu_master_walk(&hdl);
 }
-EXPORT_SYMBOL_GPL(smmu_master_dump);
 
 static int smmu_dump(void *dump_addr, unsigned int size)
 {
@@ -282,7 +281,7 @@ static const struct file_operations smmu_dump_debug_fops = {
 };
 #endif
 
-static int __init smmu_dump_init(void)
+int arm_smmu_v3_dump_init(void)
 {
 #ifdef SMMU_DUMP_DEBUG
 	struct dentry *dir;
@@ -299,4 +298,3 @@ static int __init smmu_dump_init(void)
 	return register_module_dump_mem_func(smmu_dump,
 				"smmu", MODU_SMMU);
 }
-module_init(smmu_dump_init);
