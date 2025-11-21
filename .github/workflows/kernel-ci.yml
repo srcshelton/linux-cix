@@ -309,7 +309,7 @@ jobs:
 
       - name: Checkout git source from repo ...
         if: steps.decide.outputs.run == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1
           show-progress: false
