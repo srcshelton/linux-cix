@@ -32,8 +32,8 @@
 #include <linux/module.h>
 #include <linux/platform_device.h>
 #include <linux/printk.h>
-#include "mvx_if.h"
-#include "mvx_dev.h"
+#include "if/mvx_if.h"
+#include "dev/mvx_dev.h"
 #include "mvx_log_group.h"
 
 MODULE_LICENSE("GPL");
