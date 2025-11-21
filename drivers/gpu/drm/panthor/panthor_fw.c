@@ -752,8 +752,13 @@ static int panthor_fw_load(struct panthor_device *ptdev)
 	const struct firmware *fw = NULL;
 	struct panthor_fw_binary_iter iter = {};
 	struct panthor_fw_binary_hdr hdr;
-	char fw_path[20] = "mali_csffw.bin";
+	char fw_path[128];
 	int ret;
+
+	snprintf(fw_path, sizeof(fw_path), "arm/mali/arch%d.%d/%s",
+		 (u32)GPU_ARCH_MAJOR(ptdev->gpu_info.gpu_id),
+		 (u32)GPU_ARCH_MINOR(ptdev->gpu_info.gpu_id),
+		 CSF_FW_NAME);
 
 	ret = request_firmware(&fw, fw_path, ptdev->base.dev);
 	if (ret) {
@@ -1369,7 +1374,11 @@ int panthor_fw_init(struct panthor_device *ptdev)
 	INIT_LIST_HEAD(&fw->sections);
 	INIT_DELAYED_WORK(&fw->watchdog.ping_work, panthor_fw_ping_work);
 
-	irq = platform_get_irq_byname(to_platform_device(ptdev->base.dev), "JOB");
+	if (has_acpi_companion(ptdev->base.dev))
+		irq = platform_get_irq(to_platform_device(ptdev->base.dev), 0);
+	else
+		irq = platform_get_irq_byname(to_platform_device(ptdev->base.dev), "JOB");
+
 	if (irq <= 0)
 		return -ENODEV;
 
@@ -1418,3 +1427,4 @@ err_unplug_fw:
 }
 
 MODULE_FIRMWARE("arm/mali/arch10.8/mali_csffw.bin");
+MODULE_FIRMWARE("arm/mali/arch12.8/mali_csffw.bin");
