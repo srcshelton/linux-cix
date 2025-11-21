@@ -505,7 +505,7 @@ jobs:
 
       - name: (Optional) Upload build artefacts ...
         if: steps.decide.outputs.run == 'true' && ( inputs.enable_artefacts || 'true' ) == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: kernel-ci-logs-${{ matrix.compiler }}-${{ matrix.target }}-${{ env.BUILD_ID }}
           if-no-files-found: error
