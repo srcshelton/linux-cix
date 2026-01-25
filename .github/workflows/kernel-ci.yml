@@ -316,7 +316,7 @@ jobs:
 
       - name: (Optional) Restore build cache ...
         if: steps.decide.outputs.run == 'true' && ( inputs.cache_enabled || 'true' ) == 'true' && ( inputs.clean_cache || 'false' ) != 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ env.BUILD_DIR }}
@@ -496,7 +496,7 @@ jobs:
 
       - name: (Optional) Save build cache ...
         if: steps.decide.outputs.run == 'true' && ( inputs.cache_enabled || 'true' ) == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ env.BUILD_DIR }}
